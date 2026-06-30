@@ -135,6 +135,18 @@ header h1 {
       gap: 8px;
     }
 
+
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 8px 10px;
+    }
+
     #map {
       height: 280px;
       width: 100%;
@@ -463,7 +475,19 @@ header h1 {
         grid-template-columns: 1fr 1fr;
       }
 
-      #map {
+  
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 8px 10px;
+    }
+
+    #map {
         height: 340px;
       }
     }
@@ -1021,9 +1045,29 @@ header h1 {
       tap: true
     }).setView([defaultLat, defaultLng], defaultZoom);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap'
+    });
+
+    const satelliteLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      }
+    );
+
+    const baseLayers = {
+      'Plan OpenStreetMap': osmLayer,
+      'Vue satellitaire': satelliteLayer
+    };
+
+    osmLayer.addTo(map);
+
+    L.control.layers(baseLayers, null, {
+      collapsed: false,
+      position: 'topright'
     }).addTo(map);
 
     let marker = L.marker([defaultLat, defaultLng], {
