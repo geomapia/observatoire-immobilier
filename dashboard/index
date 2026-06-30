@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Dashboard — Observatoire du Marché Immobilier</title>
+  <meta name="description" content="Dashboard de visualisation des données de l'Observatoire du Marché Immobilier." />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --primary: #0f766e;
+      --primary-dark: #115e59;
+      --secondary: #f59e0b;
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --success: #15803d;
+      --danger: #b91c1c;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      padding: 24px 16px 30px;
+      text-align: center;
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      line-height: 1.3;
+    }
+
+    header p {
+      margin: 8px 0 0;
+      color: #d1fae5;
+      font-size: 0.92rem;
+    }
+
+    .top-links {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .top-links a,
+    .top-links button {
+      border: 1px solid rgba(255,255,255,0.55);
+      color: white;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 750;
+      font-size: 0.85rem;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: -16px auto 36px;
+      padding: 0 14px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      color: var(--primary-dark);
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .status.loading {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fcd34d;
+    }
+
+    .status.success {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #86efac;
+    }
+
+    .status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    label {
+      font-size: 0.84rem;
+      color: #374151;
+      font-weight: 800;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    select,
+    input {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 0.98rem;
+      outline: none;
+      background: white;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .kpi {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .kpi .label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .kpi .value {
+      color: var(--primary-dark);
+      font-size: 1.42rem;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .chart-box {
+      min-height: 320px;
+    }
+
+    .chart-container {
+      height: 270px;
+      position: relative;
+    }
+
+    canvas {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 8px 10px;
+    }
+
+    #map {
+      height: 420px;
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #e5e7eb;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+      font-size: 0.86rem;
+    }
+
+    th,
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      background: var(--primary-dark);
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tr:nth-child(even) td { background: #f9fafb; }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--primary-dark);
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+
+    .creator-link {
+      color: inherit;
+      font-weight: 900;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.82rem;
+      padding: 0 16px 28px;
+      line-height: 1.6;
+    }
+
+    @media (min-width: 720px) {
+      header h1 { font-size: 1.9rem; }
+      .filters { grid-template-columns: repeat(3, 1fr); }
+      .kpis { grid-template-columns: repeat(3, 1fr); }
+      .charts { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (min-width: 1040px) {
+      .filters { grid-template-columns: repeat(6, 1fr); }
+      .kpis { grid-template-columns: repeat(6, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>Dashboard — Observatoire du Marché Immobilier</h1>
+  <p>Visualisation automatique des biens collectés sur le terrain</p>
+
+  <div class="top-links">
+    <a href="./index.html">← Retour à l’application</a>
+    <button type="button" onclick="loadData()">↻ Actualiser</button>
+    <button type="button" onclick="exportFilteredJson()">⬇ Export JSON</button>
+    <button type="button" onclick="exportFilteredGeoJson()">⬇ Export GeoJSON</button>
+    <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer">Brahim Jaziri</a>
+  </div>
+</header>
+
+<main>
+
+  <div id="status" class="status loading">
+    Chargement des données depuis Google Sheets...
+  </div>
+
+  <section class="card">
+    <h2 class="section-title">🔎 Filtres</h2>
+
+    <div class="filters">
+      <div>
+        <label for="filterGouvernorat">Gouvernorat</label>
+        <select id="filterGouvernorat"></select>
+      </div>
+
+      <div>
+        <label for="filterType">Type de bien</label>
+        <select id="filterType"></select>
+      </div>
+
+      <div>
+        <label for="filterStatut">Statut de l’offre</label>
+        <select id="filterStatut"></select>
+      </div>
+
+      <div>
+        <label for="filterSource">Source</label>
+        <select id="filterSource"></select>
+      </div>
+
+      <div>
+        <label for="filterPeriode">Période</label>
+        <select id="filterPeriode"></select>
+      </div>
+
+      <div>
+        <label for="filterAnnee">Année</label>
+        <select id="filterAnnee"></select>
+      </div>
+
+      <div>
+        <label for="searchText">Recherche</label>
+        <input type="search" id="searchText" placeholder="Lieu, adresse..." />
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">📊 Indicateurs principaux</h2>
+
+    <div class="kpis">
+      <div class="kpi">
+        <div class="label">Biens affichés</div>
+        <div class="value" id="kpiTotal">—</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Prix moyen demandé</div>
+        <div class="value" id="kpiPrixDemande">—</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Prix moyen de vente</div>
+        <div class="value" id="kpiPrixVente">—</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Prix moyen au m²</div>
+        <div class="value" id="kpiPrixM2">—</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Superficie moyenne</div>
+        <div class="value" id="kpiSuperficie">—</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Biens vendus</div>
+        <div class="value" id="kpiVendus">—</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">🗺️ Carte des biens</h2>
+    <div id="map"></div>
+  </section>
+
+  <section class="charts">
+    <div class="card chart-box">
+      <h2 class="section-title">🏠 Répartition par type de bien</h2>
+      <div class="chart-container"><canvas id="chartType"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">📌 Répartition par statut</h2>
+      <div class="chart-container"><canvas id="chartStatut"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">🌍 Biens par gouvernorat</h2>
+      <div class="chart-container"><canvas id="chartGouvernorat"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">💰 Prix moyen au m² par type</h2>
+      <div class="chart-container"><canvas id="chartPrixM2Type"></canvas></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">📋 Tableau des biens</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Lieu</th>
+            <th>Gouvernorat</th>
+            <th>Type</th>
+            <th>Typologie</th>
+            <th>Nature terrain</th>
+            <th>Usage</th>
+            <th>Superficie</th>
+            <th>Prix demandé</th>
+            <th>Prix vente</th>
+            <th>Prix/m²</th>
+            <th>Statut</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Observatoire du Marché Immobilier — Dashboard de visualisation<br>
+  Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+  /************************************************************
+   * 1. URL API GOOGLE APPS SCRIPT
+   ************************************************************/
+  const API_URL = 'https://script.google.com/macros/s/AKfycbwI95O6XCQBOQEO4Aiuk-EuHVaGWTfyf0iFcIww0zFtp-MeiyOFQhBb4iC0VO_STtax/exec';
+
+  let rawData = [];
+  let filteredData = [];
+  let map;
+  let markersLayer;
+  let charts = {};
+
+  const filterIds = [
+    'filterGouvernorat',
+    'filterType',
+    'filterStatut',
+    'filterSource',
+    'filterPeriode',
+    'filterAnnee'
+  ];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    initMap();
+
+    filterIds.forEach(id => {
+      document.getElementById(id).addEventListener('change', applyFilters);
+    });
+
+    document.getElementById('searchText').addEventListener('input', applyFilters);
+
+    loadData();
+  });
+
+  function loadData() {
+    setStatus('loading', 'Chargement des données depuis Google Sheets...');
+
+    const oldScript = document.getElementById('jsonpScript');
+    if (oldScript) oldScript.remove();
+
+    window.handleDashboardData = function(response) {
+      if (!response || response.status !== 'success') {
+        setStatus('error', 'Erreur : impossible de lire les données.');
+        return;
+      }
+
+      rawData = Array.isArray(response.data) ? response.data : [];
+      buildFilters(rawData);
+      applyFilters();
+
+      setStatus('success', `${rawData.length} bien(s) chargé(s) depuis Google Sheets.`);
+    };
+
+    const script = document.createElement('script');
+    script.id = 'jsonpScript';
+    script.src = API_URL + '?callback=handleDashboardData&v=' + Date.now();
+    script.onerror = function() {
+      setStatus('error', 'Erreur de chargement. Vérifiez l’URL Apps Script ou le déploiement.');
+    };
+
+    document.body.appendChild(script);
+  }
+
+  function setStatus(type, message) {
+    const box = document.getElementById('status');
+    box.className = 'status ' + type;
+    box.textContent = message;
+  }
+
+  function initMap() {
+    map = L.map('map').setView([37.2744, 9.8739], 9);
+
+    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    });
+
+    const satelliteLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 19,
+        attribution: 'Tiles &copy; Esri'
+      }
+    );
+
+    const baseLayers = {
+      'Plan OpenStreetMap': osmLayer,
+      'Vue satellitaire': satelliteLayer
+    };
+
+    osmLayer.addTo(map);
+
+    L.control.layers(baseLayers, null, {
+      collapsed: false,
+      position: 'topright'
+    }).addTo(map);
+
+    markersLayer = L.layerGroup().addTo(map);
+  }
+
+  function buildFilters(data) {
+    fillSelect('filterGouvernorat', data.map(d => d.gouvernorat));
+    fillSelect('filterType', data.map(d => d.type_bien));
+    fillSelect('filterStatut', data.map(d => d.statut_offre));
+    fillSelect('filterSource', data.map(d => d.source_information));
+    fillSelect('filterPeriode', data.map(d => d.periode_trimestre));
+    fillSelect('filterAnnee', data.map(d => getYear(d.date_saisie)));
+  }
+
+  function fillSelect(id, values) {
+    const select = document.getElementById(id);
+    const previous = select.value;
+    const unique = [...new Set(values.filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'fr'));
+
+    select.innerHTML = '<option value="">Tous</option>' +
+      unique.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+
+    if (unique.includes(previous)) {
+      select.value = previous;
+    }
+  }
+
+  function applyFilters() {
+    const gouvernorat = document.getElementById('filterGouvernorat').value;
+    const type = document.getElementById('filterType').value;
+    const statut = document.getElementById('filterStatut').value;
+    const source = document.getElementById('filterSource').value;
+    const periode = document.getElementById('filterPeriode').value;
+    const annee = document.getElementById('filterAnnee').value;
+    const search = document.getElementById('searchText').value.trim().toLowerCase();
+
+    filteredData = rawData.filter(item => {
+      const matchesFilters =
+        (!gouvernorat || item.gouvernorat === gouvernorat) &&
+        (!type || item.type_bien === type) &&
+        (!statut || item.statut_offre === statut) &&
+        (!source || item.source_information === source) &&
+        (!periode || item.periode_trimestre === periode) &&
+        (!annee || getYear(item.date_saisie) === annee);
+
+      const searchable = [
+        item.id,
+        item.lieu,
+        item.adresse,
+        item.gouvernorat,
+        item.type_bien,
+        item.statut_offre,
+        item.source_information,
+        item.nature_terrain,
+        item.usage_bien
+      ].join(' ').toLowerCase();
+
+      return matchesFilters && (!search || searchable.includes(search));
+    });
+
+    updateKpis(filteredData);
+    updateMap(filteredData);
+    updateCharts(filteredData);
+    updateTable(filteredData);
+  }
+
+  function updateKpis(data) {
+    const total = data.length;
+    const prixDemande = average(data.map(d => toNumber(d.prix_demande_tnd)).filter(v => v > 0));
+    const prixVente = average(data.map(d => toNumber(d.prix_vente_tnd)).filter(v => v > 0));
+    const prixM2 = average(data.map(d => toNumber(d.prix_m2_tnd)).filter(v => v > 0));
+    const superficie = average(data.map(d => toNumber(d.superficie_m2)).filter(v => v > 0));
+    const vendus = data.filter(d => d.statut_offre === 'Vendu').length;
+
+    document.getElementById('kpiTotal').textContent = total.toLocaleString('fr-FR');
+    document.getElementById('kpiPrixDemande').textContent = formatMoney(prixDemande);
+    document.getElementById('kpiPrixVente').textContent = formatMoney(prixVente);
+    document.getElementById('kpiPrixM2').textContent = prixM2 ? Math.round(prixM2).toLocaleString('fr-FR') + ' TND/m²' : '—';
+    document.getElementById('kpiSuperficie').textContent = superficie ? Math.round(superficie).toLocaleString('fr-FR') + ' m²' : '—';
+    document.getElementById('kpiVendus').textContent = vendus.toLocaleString('fr-FR');
+  }
+
+  function updateMap(data) {
+    markersLayer.clearLayers();
+
+    const bounds = [];
+
+    data.forEach(item => {
+      const lat = toNumber(item.latitude);
+      const lng = toNumber(item.longitude);
+
+      if (!lat || !lng) return;
+
+      const popup = `
+        <strong>${escapeHtml(item.type_bien || 'Bien')}</strong><br>
+        <b>Lieu :</b> ${escapeHtml(item.lieu || '')}<br>
+        <b>Gouvernorat :</b> ${escapeHtml(item.gouvernorat || '')}<br>
+        <b>Superficie :</b> ${formatNumber(item.superficie_m2)} m²<br>
+        <b>Prix demandé :</b> ${formatMoney(item.prix_demande_tnd)}<br>
+        <b>Prix vente :</b> ${formatMoney(item.prix_vente_tnd)}<br>
+        <b>Prix/m² :</b> ${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²<br>
+        <b>Statut :</b> ${escapeHtml(item.statut_offre || '')}
+      `;
+
+      L.marker([lat, lng]).bindPopup(popup).addTo(markersLayer);
+      bounds.push([lat, lng]);
+    });
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+    }
+  }
+
+  function updateCharts(data) {
+    renderCountChart('chartType', countBy(data, 'type_bien'), 'bar');
+    renderCountChart('chartStatut', countBy(data, 'statut_offre'), 'doughnut');
+    renderCountChart('chartGouvernorat', countBy(data, 'gouvernorat'), 'bar');
+    renderAverageChart('chartPrixM2Type', averageBy(data, 'type_bien', 'prix_m2_tnd'), 'bar');
+  }
+
+  function renderCountChart(canvasId, dataset, type) {
+    const labels = Object.keys(dataset);
+    const values = Object.values(dataset);
+
+    destroyChart(canvasId);
+
+    charts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type,
+      data: {
+        labels,
+        datasets: [{
+          label: 'Nombre de biens',
+          data: values
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: type === 'doughnut'
+          }
+        },
+        scales: type === 'doughnut' ? {} : {
+          y: {
+            beginAtZero: true,
+            ticks: { precision: 0 }
+          }
+        }
+      }
+    });
+  }
+
+  function renderAverageChart(canvasId, dataset, type) {
+    const labels = Object.keys(dataset);
+    const values = Object.values(dataset).map(v => Math.round(v));
+
+    destroyChart(canvasId);
+
+    charts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type,
+      data: {
+        labels,
+        datasets: [{
+          label: 'Prix moyen au m²',
+          data: values
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function destroyChart(canvasId) {
+    if (charts[canvasId]) {
+      charts[canvasId].destroy();
+      charts[canvasId] = null;
+    }
+  }
+
+  function updateTable(data) {
+    const body = document.getElementById('tableBody');
+
+    if (data.length === 0) {
+      body.innerHTML = '<tr><td colspan="14">Aucun bien ne correspond aux filtres.</td></tr>';
+      return;
+    }
+
+    body.innerHTML = data.map(item => `
+      <tr>
+        <td>${escapeHtml(item.id)}</td>
+        <td>${escapeHtml(item.date_saisie)}</td>
+        <td>${escapeHtml(item.lieu)}</td>
+        <td>${escapeHtml(item.gouvernorat)}</td>
+        <td><span class="badge">${escapeHtml(item.type_bien)}</span></td>
+        <td>${escapeHtml(item.typologie)}</td>
+        <td>${escapeHtml(item.nature_terrain)}</td>
+        <td>${escapeHtml(item.usage_bien)}</td>
+        <td>${formatNumber(item.superficie_m2)} m²</td>
+        <td>${formatMoney(item.prix_demande_tnd)}</td>
+        <td>${formatMoney(item.prix_vente_tnd)}</td>
+        <td>${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²</td>
+        <td>${escapeHtml(item.statut_offre)}</td>
+        <td>${escapeHtml(item.source_information)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function countBy(data, field) {
+    return data.reduce((acc, item) => {
+      const key = item[field] || 'Non renseigné';
+      acc[key] = (acc[key] || 0) + 1;
+      return acc;
+    }, {});
+  }
+
+  function averageBy(data, categoryField, valueField) {
+    const groups = {};
+
+    data.forEach(item => {
+      const key = item[categoryField] || 'Non renseigné';
+      const value = toNumber(item[valueField]);
+
+      if (value <= 0) return;
+
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(value);
+    });
+
+    const result = {};
+
+    Object.keys(groups).forEach(key => {
+      result[key] = average(groups[key]);
+    });
+
+    return result;
+  }
+
+  function average(values) {
+    if (!values.length) return 0;
+    return values.reduce((sum, value) => sum + value, 0) / values.length;
+  }
+
+  function toNumber(value) {
+    return Number(value) || 0;
+  }
+
+  function formatNumber(value) {
+    const n = toNumber(value);
+    if (!n) return '—';
+    return n.toLocaleString('fr-FR');
+  }
+
+  function formatMoney(value) {
+    const n = toNumber(value);
+    if (!n) return '—';
+    return Math.round(n).toLocaleString('fr-FR') + ' TND';
+  }
+
+  function getYear(value) {
+    if (!value) return '';
+
+    const textValue = String(value).trim();
+
+    const directMatch = textValue.match(/^(\d{4})/);
+    if (directMatch) {
+      return directMatch[1];
+    }
+
+    const parsedDate = new Date(textValue);
+    if (!isNaN(parsedDate.getTime())) {
+      return String(parsedDate.getFullYear());
+    }
+
+    return '';
+  }
+
+
+  /************************************************************
+   * EXPORT DES DONNÉES FILTRÉES : JSON ET GEOJSON
+   ************************************************************/
+  function exportFilteredJson() {
+    const dataToExport = Array.isArray(filteredData) ? filteredData : [];
+
+    if (dataToExport.length === 0) {
+      alert("Aucune donnée à exporter avec les filtres actuels.");
+      return;
+    }
+
+    const payload = {
+      type: "ObservatoireMarcheImmobilierExport",
+      format: "JSON",
+      generated_at: new Date().toISOString(),
+      count: dataToExport.length,
+      filters: getActiveFilters(),
+      data: dataToExport
+    };
+
+    downloadTextFile(
+      JSON.stringify(payload, null, 2),
+      buildExportFileName("observatoire_immobilier", "json"),
+      "application/json;charset=utf-8"
+    );
+  }
+
+  function exportFilteredGeoJson() {
+    const dataToExport = Array.isArray(filteredData) ? filteredData : [];
+
+    if (dataToExport.length === 0) {
+      alert("Aucune donnée à exporter avec les filtres actuels.");
+      return;
+    }
+
+    const features = dataToExport
+      .map(item => {
+        const lat = toNumber(item.latitude);
+        const lng = toNumber(item.longitude);
+
+        if (!lat || !lng) {
+          return null;
+        }
+
+        const properties = { ...item };
+        delete properties.latitude;
+        delete properties.longitude;
+
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Point",
+            coordinates: [lng, lat]
+          },
+          properties: properties
+        };
+      })
+      .filter(Boolean);
+
+    if (features.length === 0) {
+      alert("Aucun point GPS valide à exporter en GeoJSON.");
+      return;
+    }
+
+    const geojson = {
+      type: "FeatureCollection",
+      name: "observatoire_immobilier",
+      generated_at: new Date().toISOString(),
+      count: features.length,
+      filters: getActiveFilters(),
+      crs: {
+        type: "name",
+        properties: {
+          name: "urn:ogc:def:crs:OGC:1.3:CRS84"
+        }
+      },
+      features: features
+    };
+
+    downloadTextFile(
+      JSON.stringify(geojson, null, 2),
+      buildExportFileName("observatoire_immobilier", "geojson"),
+      "application/geo+json;charset=utf-8"
+    );
+  }
+
+  function getActiveFilters() {
+    return {
+      gouvernorat: document.getElementById("filterGouvernorat")?.value || "",
+      type_bien: document.getElementById("filterType")?.value || "",
+      statut_offre: document.getElementById("filterStatut")?.value || "",
+      source_information: document.getElementById("filterSource")?.value || "",
+      periode_trimestre: document.getElementById("filterPeriode")?.value || "",
+      annee: document.getElementById("filterAnnee")?.value || "",
+      recherche: document.getElementById("searchText")?.value || ""
+    };
+  }
+
+  function buildExportFileName(prefix, extension) {
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const dd = String(now.getDate()).padStart(2, "0");
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+
+    const filters = getActiveFilters();
+    const parts = [
+      prefix,
+      filters.annee || "toutes_annees",
+      filters.gouvernorat || "tous_gouvernorats",
+      filters.type_bien || "tous_types",
+      `${yyyy}${mm}${dd}_${hh}${min}`
+    ];
+
+    const cleanName = parts
+      .join("_")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-zA-Z0-9_]+/g, "_")
+      .replace(/_+/g, "_")
+      .replace(/^_|_$/g, "")
+      .toLowerCase();
+
+    return `${cleanName}.${extension}`;
+  }
+
+  function downloadTextFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#039;');
+  }
+</script>
+
+</body>
+</html>
