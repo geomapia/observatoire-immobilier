@@ -148,41 +148,76 @@ header h1 {
     }
 
 
-    /* Contrôle de couches Leaflet compact sur smartphone */
+
+    /* Contrôle de couches Leaflet très compact sur smartphone */
     .leaflet-control-layers {
-      border-radius: 12px !important;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 0.78rem;
+      border-radius: 10px !important;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.18) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 11px !important;
+      line-height: 1.15 !important;
     }
 
     .leaflet-control-layers-expanded {
-      padding: 7px 9px !important;
-      line-height: 1.25;
+      padding: 6px 7px !important;
+      min-width: 0 !important;
+      max-width: 150px !important;
+    }
+
+    .leaflet-control-layers-list {
+      margin: 0 !important;
+      padding: 0 !important;
     }
 
     .leaflet-control-layers label {
       display: flex !important;
       align-items: center !important;
-      gap: 6px;
-      margin: 4px 0 !important;
-      font-size: 0.78rem !important;
+      gap: 5px !important;
+      margin: 2px 0 !important;
+      padding: 0 !important;
+      min-height: 18px !important;
+      font-size: 11px !important;
       font-weight: 700 !important;
       color: #374151 !important;
+      white-space: nowrap !important;
     }
 
+    .leaflet-control-layers-selector,
+    .leaflet-control-layers input,
     .leaflet-control-layers input[type="radio"],
     .leaflet-control-layers input[type="checkbox"] {
-      width: 14px !important;
-      height: 14px !important;
-      min-height: 14px !important;
+      appearance: auto !important;
+      -webkit-appearance: radio !important;
+      display: inline-block !important;
+      width: 12px !important;
+      min-width: 12px !important;
+      max-width: 12px !important;
+      height: 12px !important;
+      min-height: 12px !important;
+      max-height: 12px !important;
       padding: 0 !important;
-      margin: 0 !important;
+      margin: 0 4px 0 0 !important;
       border-radius: 50% !important;
       box-shadow: none !important;
       accent-color: var(--primary);
-      flex: 0 0 auto;
+      flex: 0 0 12px !important;
+      transform: none !important;
     }
+
+    .leaflet-control-layers-separator {
+      margin: 4px 0 !important;
+    }
+
+    @media (max-width: 680px) {
+      .leaflet-control-layers-expanded {
+        max-width: 138px !important;
+      }
+
+      .leaflet-control-layers label {
+        font-size: 10.5px !important;
+      }
+    }
+
 
     #map {
       height: 280px;
