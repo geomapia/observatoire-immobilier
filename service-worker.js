@@ -1,4 +1,4 @@
-const CACHE_NAME = 'observatoire-immobilier-v4';
+const CACHE_NAME = 'observatoire-immobilier-v5';
 
 const APP_SHELL = [
   './',
