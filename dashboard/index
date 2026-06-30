@@ -2,16 +2,25 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-  <title>Dashboard — Observatoire du Marché Immobilier</title>
-  <meta name="description" content="Dashboard de visualisation des données de l'Observatoire du Marché Immobilier." />
+  <title>Observatoire du Marché Immobilier</title>
+  <meta name="description" content="Application mobile PWA de collecte des biens immobiliers sur le terrain." />
 
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0f766e" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Immo Terrain" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
 
   <style>
     :root {
@@ -25,17 +34,26 @@
       --border: #d1d5db;
       --success: #15803d;
       --danger: #b91c1c;
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+      --warning: #92400e;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
       --radius: 18px;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
 
     body {
       margin: 0;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
       color: var(--text);
+      min-height: 100vh;
     }
 
     header {
@@ -46,44 +64,57 @@
       border-bottom-left-radius: 28px;
       border-bottom-right-radius: 28px;
       box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
     }
 
-    header h1 {
+    header::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      right: -70px;
+      top: -80px;
+      background: rgba(255,255,255,0.10);
+      border-radius: 50%;
+    }
+header h1 {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       line-height: 1.3;
+      position: relative;
+      z-index: 2;
     }
 
     header p {
       margin: 8px 0 0;
+      font-size: 0.9rem;
       color: #d1fae5;
-      font-size: 0.92rem;
+      position: relative;
+      z-index: 2;
     }
 
-    .top-links {
-      margin-top: 14px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
+    .creator-line {
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #ecfdf5;
+      position: relative;
+      z-index: 2;
+      opacity: 0.95;
     }
 
-    .top-links a,
-    .top-links button {
-      border: 1px solid rgba(255,255,255,0.55);
-      color: white;
-      background: rgba(255,255,255,0.12);
-      border-radius: 999px;
-      padding: 9px 13px;
-      font-weight: 750;
-      font-size: 0.85rem;
-      text-decoration: none;
-      cursor: pointer;
+    .objectid-line {
+      margin-top: 4px;
+      font-size: 0.74rem;
+      color: #ccfbf1;
+      position: relative;
+      z-index: 2;
+      opacity: 0.9;
     }
 
     main {
-      max-width: 1180px;
-      margin: -16px auto 36px;
+      max-width: 760px;
+      margin: -14px auto 40px;
       padding: 0 14px;
     }
 
@@ -97,116 +128,11 @@
 
     .section-title {
       margin: 0 0 12px;
+      font-size: 1rem;
       color: var(--primary-dark);
-      font-size: 1.05rem;
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-
-    .status {
-      padding: 12px 14px;
-      border-radius: 14px;
-      margin-bottom: 16px;
-      font-weight: 750;
-      line-height: 1.45;
-    }
-
-    .status.loading {
-      background: #fef3c7;
-      color: #92400e;
-      border: 1px solid #fcd34d;
-    }
-
-    .status.success {
-      background: #dcfce7;
-      color: #166534;
-      border: 1px solid #86efac;
-    }
-
-    .status.error {
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fca5a5;
-    }
-
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    label {
-      font-size: 0.84rem;
-      color: #374151;
-      font-weight: 800;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    select,
-    input {
-      width: 100%;
-      min-height: 46px;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-size: 0.98rem;
-      outline: none;
-      background: white;
-    }
-
-    select:focus,
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.14);
-    }
-
-    .kpis {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .kpi {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      padding: 14px;
-    }
-
-    .kpi .label {
-      color: var(--muted);
-      font-size: 0.82rem;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .kpi .value {
-      color: var(--primary-dark);
-      font-size: 1.42rem;
-      font-weight: 900;
-      line-height: 1.2;
-    }
-
-    .charts {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .chart-box {
-      min-height: 320px;
-    }
-
-    .chart-container {
-      height: 270px;
-      position: relative;
-    }
-
-    canvas {
-      width: 100% !important;
-      height: 100% !important;
     }
 
 
@@ -222,315 +148,902 @@
     }
 
     #map {
-      height: 420px;
+      height: 280px;
       width: 100%;
       border-radius: 16px;
       border: 1px solid var(--border);
       overflow: hidden;
+      margin-bottom: 12px;
       background: #e5e7eb;
     }
 
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid #e5e7eb;
-      border-radius: 14px;
-    }
-
-    table {
+    .btn {
       width: 100%;
-      border-collapse: collapse;
-      min-width: 980px;
-      font-size: 0.86rem;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 1rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+      touch-action: manipulation;
     }
 
-    th,
-    td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #e5e7eb;
-      text-align: left;
-      white-space: nowrap;
+    .btn:active {
+      transform: scale(0.985);
     }
 
-    th {
-      background: var(--primary-dark);
-      color: white;
-      position: sticky;
-      top: 0;
+    .btn-location {
+      background: var(--secondary);
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    .btn-install {
+      background: #ffffff;
+      color: var(--primary-dark);
+      border: 1px solid rgba(255,255,255,0.6);
+      margin: 14px auto 0;
+      max-width: 320px;
+      display: none;
+      position: relative;
       z-index: 2;
     }
 
-    tr:nth-child(even) td { background: #f9fafb; }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: #ecfdf5;
-      color: var(--primary-dark);
-      font-weight: 800;
-      font-size: 0.78rem;
+    .btn-submit {
+      background: var(--primary);
+      color: white;
+      margin-top: 12px;
     }
 
-    .creator-link {
-      color: inherit;
-      font-weight: 900;
-      text-decoration: underline;
-      text-underline-offset: 3px;
+    .btn-submit:disabled,
+    .btn-location:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    label {
+      font-size: 0.88rem;
+      font-weight: 750;
+      color: #374151;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 13px;
+      font-size: 1rem;
+      background: white;
+      color: var(--text);
+      outline: none;
+      min-height: 48px;
+    }
+
+    select {
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, #374151 50%),
+        linear-gradient(135deg, #374151 50%, transparent 50%);
+      background-position:
+        calc(100% - 18px) 21px,
+        calc(100% - 12px) 21px;
+      background-size: 6px 6px, 6px 6px;
+      background-repeat: no-repeat;
+      padding-right: 34px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    }
+
+    input[readonly] {
+      background: #f9fafb;
+      color: #374151;
+      font-weight: 650;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .message,
+    .status-box {
+      display: none;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-top: 12px;
+      line-height: 1.4;
+    }
+
+    .message.success,
+    .status-box.success {
+      display: block;
+      background: #dcfce7;
+      color: var(--success);
+      border: 1px solid #86efac;
+    }
+
+    .message.error,
+    .status-box.error {
+      display: block;
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fca5a5;
+    }
+
+    .message.warning,
+    .status-box.warning {
+      display: block;
+      background: #fef3c7;
+      color: var(--warning);
+      border: 1px solid #fcd34d;
+    }
+
+    .metric-preview {
+      background: #ecfdf5;
+      border: 1px solid #99f6e4;
+      color: var(--primary-dark);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 0.95rem;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+
+    .metric-preview span {
+      display: block;
+      font-size: 1.18rem;
+      color: var(--primary-dark);
+      margin-top: 2px;
+    }
+
+    .queue-mini {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .hidden-field {
+      display: none !important;
+    }
+
+    .property-only {
+      transition: opacity 0.15s ease;
+    }
+
+    .help-text {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.4;
+      margin: 6px 0 0;
     }
 
     footer {
       text-align: center;
+      font-size: 0.78rem;
       color: var(--muted);
-      font-size: 0.82rem;
-      padding: 0 16px 28px;
+      padding: 8px 16px 24px;
       line-height: 1.6;
     }
 
-    @media (min-width: 720px) {
-      header h1 { font-size: 1.9rem; }
-      .filters { grid-template-columns: repeat(3, 1fr); }
-      .kpis { grid-template-columns: repeat(3, 1fr); }
-      .charts { grid-template-columns: repeat(2, 1fr); }
+    footer strong {
+      color: var(--primary-dark);
     }
 
-    @media (min-width: 1040px) {
-      .filters { grid-template-columns: repeat(6, 1fr); }
-      .kpis { grid-template-columns: repeat(6, 1fr); }
+    .creator-link {
+      color: inherit;
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .creator-line .creator-link {
+      color: #ecfdf5;
+    }
+
+    footer .creator-link {
+      color: var(--primary-dark);
+    }
+
+    .thank-you-small .creator-link {
+      color: var(--primary-dark);
+    }
+
+    .thank-you-screen {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.72);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .thank-you-screen.active {
+      display: flex;
+    }
+
+    .thank-you-card {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 24px;
+      padding: 26px 20px;
+      text-align: center;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+      animation: popIn 0.25s ease;
+    }
+
+    .thank-you-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .thank-you-card h2 {
+      margin: 0 0 12px;
+      color: var(--primary-dark);
+      font-size: 1.35rem;
+    }
+
+    .thank-you-card p {
+      margin: 0 0 14px;
+      color: #374151;
+      line-height: 1.5;
+      font-size: 0.98rem;
+    }
+
+    .thank-you-small {
+      font-size: 0.82rem !important;
+      color: var(--muted) !important;
+    }
+
+    .thank-you-card button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+.thank-you-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.thank-you-card button.btn-new-entry {
+  background: var(--primary);
+  color: white;
+}
+
+.thank-you-card button.btn-quit {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.thank-you-card button.btn-quit:active {
+  background: #d1d5db;
+}
+    @keyframes popIn {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (min-width: 680px) {
+      header h1 {
+        font-size: 1.7rem;
+      }
+
+      main {
+        padding: 0 20px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+
+  
+    .leaflet-control-layers {
+      border-radius: 12px !important;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.18) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 0.82rem;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 8px 10px;
+    }
+
+    #map {
+        height: 340px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-<header>
-  <h1>Dashboard — Observatoire du Marché Immobilier</h1>
-  <p>Visualisation automatique des biens collectés sur le terrain</p>
+  <header>
+<h1>Observatoire du Marché Immobilier</h1>
+    <p>Application mobile PWA de collecte des biens sur le terrain</p>
+    <div class="creator-line">Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a></div>
+    <div class="objectid-line">ObjectID application : OMI-BJ-2026-001</div>
 
-  <div class="top-links">
-    <a href="./index.html">← Retour à l’application</a>
-    <button type="button" onclick="loadData()">↻ Actualiser</button>
-    <button type="button" onclick="exportFilteredJson()">⬇ Export JSON</button>
-    <button type="button" onclick="exportFilteredGeoJson()">⬇ Export GeoJSON</button>
-    <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer">Brahim Jaziri</a>
+    <button type="button" class="btn btn-install" id="installBtn">
+      📲 Installer l’application
+    </button>
+  </header>
+
+  <main>
+
+    <div id="onlineStatus" class="status-box"></div>
+    <div id="queueStatus" class="status-box"></div>
+
+    <section class="card">
+      <h2 class="section-title">🗺️ Localisation du bien</h2>
+
+      <button type="button" class="btn btn-location" id="locateBtn">
+        📍 Capturer ma position
+      </button>
+
+      <div id="map"></div>
+
+      <div class="field">
+        <label for="gps">Coordonnées GPS (Lat, Long)</label>
+        <input type="text" id="gps" name="gps" readonly placeholder="Cliquez sur la carte ou capturez votre position" />
+        <p class="help-text">
+          Vous pouvez déplacer le marqueur manuellement pour corriger la position exacte du bien.
+        </p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">🏠 Informations du bien</h2>
+
+      <form id="propertyForm">
+
+        <!-- Ordre logique : Lieu → Type de bien → Adresse -->
+        <div class="grid-2">
+          <div class="field">
+            <label for="lieu">Lieu</label>
+            <input type="text" id="lieu" name="lieu" required placeholder="Ex. Bizerte centre" autocomplete="address-level2" />
+          </div>
+
+          <div class="field">
+            <label for="typeBien">Type de Bien</label>
+            <select id="typeBien" name="typeBien" required>
+              <option value="Appartement">Appartement</option>
+              <option value="Maison">Maison</option>
+              <option value="Terrain">Terrain</option>
+              <option value="Bureau">Bureau</option>
+              <option value="Local commercial">Local commercial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="adresse">Adresse</label>
+          <input type="text" id="adresse" name="adresse" required placeholder="Adresse ou repère" autocomplete="street-address" />
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="superficie">Superficie (m²)</label>
+            <input type="number" id="superficie" name="superficie" min="0" step="0.01" required inputmode="decimal" />
+          </div>
+
+          <div class="field property-only" id="piecesWrapper">
+            <label for="pieces">Nombre de pièces</label>
+            <input type="number" id="pieces" name="pieces" min="0" step="1" required inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="prixDemande">Prix demandé (TND)</label>
+            <input type="number" id="prixDemande" name="prixDemande" min="0" step="1" required inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="prixVente">Prix de vente (TND)</label>
+            <input type="number" id="prixVente" name="prixVente" min="0" step="1" inputmode="numeric" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Prix au m² calculé automatiquement</label>
+          <div class="metric-preview" id="prixM2Preview">
+            Saisissez la superficie et le prix demandé ou le prix de vente.
+            <span>—</span>
+          </div>
+          <p class="help-text">
+            Le calcul utilise le prix de vente lorsqu’il est renseigné, sinon le prix demandé.
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="periode">Période (Trimestre)</label>
+            <select id="periode" name="periode" required>
+              <option value="T1">T1</option>
+              <option value="T2">T2</option>
+              <option value="T3">T3</option>
+              <option value="T4">T4</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="source">Source de l'information</label>
+            <select id="source" name="source" required>
+              <option value="Tayara">Tayara</option>
+              <option value="Mubawab">Mubawab</option>
+              <option value="Agence immobilière">Agence immobilière</option>
+              <option value="Courtier/Samsar">Courtier/Samsar</option>
+              <option value="Contact direct">Contact direct</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="gouvernorat">Gouvernorat</label>
+          <select id="gouvernorat" name="gouvernorat" required>
+            <option value="Ariana">Ariana</option>
+            <option value="Béja">Béja</option>
+            <option value="Ben Arous">Ben Arous</option>
+            <option value="Bizerte" selected>Bizerte</option>
+            <option value="Gabès">Gabès</option>
+            <option value="Gafsa">Gafsa</option>
+            <option value="Jendouba">Jendouba</option>
+            <option value="Kairouan">Kairouan</option>
+            <option value="Kasserine">Kasserine</option>
+            <option value="Kébili">Kébili</option>
+            <option value="Le Kef">Le Kef</option>
+            <option value="Mahdia">Mahdia</option>
+            <option value="La Manouba">La Manouba</option>
+            <option value="Médenine">Médenine</option>
+            <option value="Monastir">Monastir</option>
+            <option value="Nabeul">Nabeul</option>
+            <option value="Sfax">Sfax</option>
+            <option value="Sidi Bouzid">Sidi Bouzid</option>
+            <option value="Siliana">Siliana</option>
+            <option value="Sousse">Sousse</option>
+            <option value="Tataouine">Tataouine</option>
+            <option value="Tozeur">Tozeur</option>
+            <option value="Tunis">Tunis</option>
+            <option value="Zaghouan">Zaghouan</option>
+          </select>
+        </div>
+
+        <!-- Champs adaptés automatiquement selon le type de bien -->
+        <div class="grid-2" id="builtPropertyFields">
+          <div class="field property-only" id="typologieWrapper">
+            <label for="typologie">Typologie (S+X)</label>
+            <select id="typologie" name="typologie" required>
+              <option value="S+1">S+1</option>
+              <option value="S+2">S+2</option>
+              <option value="S+3">S+3</option>
+              <option value="S+4 et plus">S+4 et plus</option>
+              <option value="Duplex">Duplex</option>
+              <option value="Villa">Villa</option>
+            </select>
+          </div>
+
+          <div class="field property-only" id="etatBienWrapper">
+            <label for="etatBien">État du bien</label>
+            <select id="etatBien" name="etatBien" required>
+              <option value="Neuf">Neuf</option>
+              <option value="Très bon état">Très bon état</option>
+              <option value="À rafraîchir">À rafraîchir</option>
+              <option value="En construction">En construction</option>
+              <option value="À démolir">À démolir</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field hidden-field" id="natureTerrainWrapper">
+          <label for="natureTerrain">Nature du terrain</label>
+          <select id="natureTerrain" name="natureTerrain">
+            <option value="Constructible">Constructible</option>
+            <option value="Agricole">Agricole</option>
+            <option value="Industriel">Industriel</option>
+            <option value="Non constructible">Non constructible</option>
+            <option value="À vérifier">À vérifier</option>
+          </select>
+        </div>
+
+        <div class="field hidden-field" id="usageWrapper">
+          <label for="usageBien">Usage</label>
+          <select id="usageBien" name="usageBien">
+            <option value="Commerce">Commerce</option>
+            <option value="Bureau">Bureau</option>
+            <option value="Dépôt">Dépôt</option>
+            <option value="Atelier">Atelier</option>
+            <option value="Restaurant / café">Restaurant / café</option>
+            <option value="Service">Service</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="statutFoncier">Statut foncier</label>
+          <select id="statutFoncier" name="statutFoncier" required>
+            <option value="Titre Bleu">Titre Bleu</option>
+            <option value="Indivision (Mouchaa)">Indivision (Mouchaa)</option>
+            <option value="Promesse de vente">Promesse de vente</option>
+            <option value="Certificat de possession">Certificat de possession</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="statutOffre">Statut de l'offre</label>
+          <select id="statutOffre" name="statutOffre" required>
+            <option value="Disponible">Disponible</option>
+            <option value="En négociation">En négociation</option>
+            <option value="Vendu">Vendu</option>
+            <option value="Suspendu">Suspendu</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-submit" id="submitBtn">
+          💾 Enregistrer le bien
+        </button>
+
+        <div id="message" class="message"></div>
+
+      </form>
+    </section>
+
+  </main>
+
+  <footer>
+    Observatoire du Marché Immobilier — Collecte mobile terrain<br>
+    <strong>Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a></strong><br>
+    <span>ObjectID application : OMI-BJ-2026-001</span>
+  </footer>
+
+  <div id="thankYouScreen" class="thank-you-screen">
+    <div class="thank-you-card">
+      <div class="thank-you-icon">✅</div>
+      <h2 id="thankYouTitle">Merci pour votre collaboration</h2>
+      <p id="thankYouText">
+        Les informations saisies sont strictement gardées
+        et utilisées exclusivement dans un but scientifique.
+      </p>
+      <p class="thank-you-small">
+        Observatoire du Marché Immobilier<br>
+        Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a><br>
+        ObjectID application : OMI-BJ-2026-001
+      </p>
+     <div class="thank-you-actions">
+  <button type="button" class="btn-new-entry" onclick="closeThankYouScreen()">
+    Ajouter un nouveau bien
+  </button>
+
+  <button type="button" class="btn-quit" onclick="quitApplication()">
+    Quitter
+  </button>
+</div>
+    </div>
   </div>
-</header>
 
-<main>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <div id="status" class="status loading">
-    Chargement des données depuis Google Sheets...
-  </div>
+  <script>
+    /************************************************************
+     * 1. CONFIGURATION PRINCIPALE
+     ************************************************************/
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwI95O6XCQBOQEO4Aiuk-EuHVaGWTfyf0iFcIww0zFtp-MeiyOFQhBb4iC0VO_STtax/exec';
+    const APP_CREATOR = 'Brahim Jaziri_Geomap.ia';
+    const APP_OBJECT_ID = 'OMI-BJ-2026-001';
+    const OFFLINE_QUEUE_KEY = 'observatoire_immo_offline_queue_v1';
 
-  <section class="card">
-    <h2 class="section-title">🔎 Filtres</h2>
+    /************************************************************
+     * 2. PWA : SERVICE WORKER ET INSTALLATION
+     ************************************************************/
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./service-worker.js')
+          .catch(function (error) {
+            console.warn('Service Worker non enregistré :', error);
+          });
+      });
+    }
 
-    <div class="filters">
-      <div>
-        <label for="filterGouvernorat">Gouvernorat</label>
-        <select id="filterGouvernorat"></select>
-      </div>
+    let deferredInstallPrompt = null;
+    const installBtn = document.getElementById('installBtn');
 
-      <div>
-        <label for="filterType">Type de bien</label>
-        <select id="filterType"></select>
-      </div>
-
-      <div>
-        <label for="filterStatut">Statut de l’offre</label>
-        <select id="filterStatut"></select>
-      </div>
-
-      <div>
-        <label for="filterSource">Source</label>
-        <select id="filterSource"></select>
-      </div>
-
-      <div>
-        <label for="filterPeriode">Période</label>
-        <select id="filterPeriode"></select>
-      </div>
-
-      <div>
-        <label for="filterAnnee">Année</label>
-        <select id="filterAnnee"></select>
-      </div>
-
-      <div>
-        <label for="searchText">Recherche</label>
-        <input type="search" id="searchText" placeholder="Lieu, adresse..." />
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2 class="section-title">📊 Indicateurs principaux</h2>
-
-    <div class="kpis">
-      <div class="kpi">
-        <div class="label">Biens affichés</div>
-        <div class="value" id="kpiTotal">—</div>
-      </div>
-
-      <div class="kpi">
-        <div class="label">Prix moyen demandé</div>
-        <div class="value" id="kpiPrixDemande">—</div>
-      </div>
-
-      <div class="kpi">
-        <div class="label">Prix moyen de vente</div>
-        <div class="value" id="kpiPrixVente">—</div>
-      </div>
-
-      <div class="kpi">
-        <div class="label">Prix moyen au m²</div>
-        <div class="value" id="kpiPrixM2">—</div>
-      </div>
-
-      <div class="kpi">
-        <div class="label">Superficie moyenne</div>
-        <div class="value" id="kpiSuperficie">—</div>
-      </div>
-
-      <div class="kpi">
-        <div class="label">Biens vendus</div>
-        <div class="value" id="kpiVendus">—</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2 class="section-title">🗺️ Carte des biens</h2>
-    <div id="map"></div>
-  </section>
-
-  <section class="charts">
-    <div class="card chart-box">
-      <h2 class="section-title">🏠 Répartition par type de bien</h2>
-      <div class="chart-container"><canvas id="chartType"></canvas></div>
-    </div>
-
-    <div class="card chart-box">
-      <h2 class="section-title">📌 Répartition par statut</h2>
-      <div class="chart-container"><canvas id="chartStatut"></canvas></div>
-    </div>
-
-    <div class="card chart-box">
-      <h2 class="section-title">🌍 Biens par gouvernorat</h2>
-      <div class="chart-container"><canvas id="chartGouvernorat"></canvas></div>
-    </div>
-
-    <div class="card chart-box">
-      <h2 class="section-title">💰 Prix moyen au m² par type</h2>
-      <div class="chart-container"><canvas id="chartPrixM2Type"></canvas></div>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2 class="section-title">📋 Tableau des biens</h2>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Date</th>
-            <th>Lieu</th>
-            <th>Gouvernorat</th>
-            <th>Type</th>
-            <th>Typologie</th>
-            <th>Nature terrain</th>
-            <th>Usage</th>
-            <th>Superficie</th>
-            <th>Prix demandé</th>
-            <th>Prix vente</th>
-            <th>Prix/m²</th>
-            <th>Statut</th>
-            <th>Source</th>
-          </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </section>
-
-</main>
-
-<footer>
-  Observatoire du Marché Immobilier — Dashboard de visualisation<br>
-  Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a>
-</footer>
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-  /************************************************************
-   * 1. URL API GOOGLE APPS SCRIPT
-   ************************************************************/
-  const API_URL = 'https://script.google.com/macros/s/AKfycbwI95O6XCQBOQEO4Aiuk-EuHVaGWTfyf0iFcIww0zFtp-MeiyOFQhBb4iC0VO_STtax/exec';
-
-  let rawData = [];
-  let filteredData = [];
-  let map;
-  let markersLayer;
-  let charts = {};
-
-  const filterIds = [
-    'filterGouvernorat',
-    'filterType',
-    'filterStatut',
-    'filterSource',
-    'filterPeriode',
-    'filterAnnee'
-  ];
-
-  document.addEventListener('DOMContentLoaded', () => {
-    initMap();
-
-    filterIds.forEach(id => {
-      document.getElementById(id).addEventListener('change', applyFilters);
+    window.addEventListener('beforeinstallprompt', function (event) {
+      event.preventDefault();
+      deferredInstallPrompt = event;
+      installBtn.style.display = 'block';
     });
 
-    document.getElementById('searchText').addEventListener('input', applyFilters);
-
-    loadData();
-  });
-
-  function loadData() {
-    setStatus('loading', 'Chargement des données depuis Google Sheets...');
-
-    const oldScript = document.getElementById('jsonpScript');
-    if (oldScript) oldScript.remove();
-
-    window.handleDashboardData = function(response) {
-      if (!response || response.status !== 'success') {
-        setStatus('error', 'Erreur : impossible de lire les données.');
+    installBtn.addEventListener('click', async function () {
+      if (!deferredInstallPrompt) {
+        showMessage('error', "L'installation n'est pas encore disponible. Essayez depuis le menu du navigateur : Ajouter à l’écran d’accueil.");
         return;
       }
 
-      rawData = Array.isArray(response.data) ? response.data : [];
-      buildFilters(rawData);
-      applyFilters();
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      installBtn.style.display = 'none';
+    });
 
-      setStatus('success', `${rawData.length} bien(s) chargé(s) depuis Google Sheets.`);
-    };
+    window.addEventListener('appinstalled', function () {
+      installBtn.style.display = 'none';
+      showMessage('success', "✅ Application installée avec succès.");
+    });
 
-    const script = document.createElement('script');
-    script.id = 'jsonpScript';
-    script.src = API_URL + '?callback=handleDashboardData&v=' + Date.now();
-    script.onerror = function() {
-      setStatus('error', 'Erreur de chargement. Vérifiez l’URL Apps Script ou le déploiement.');
-    };
+    function updateOnlineStatus() {
+      const box = document.getElementById('onlineStatus');
 
-    document.body.appendChild(script);
-  }
+      if (navigator.onLine) {
+        box.className = 'status-box success';
+        box.style.display = 'block';
+        box.textContent = '✅ Connexion Internet active. Les données peuvent être envoyées vers Google Sheets.';
 
-  function setStatus(type, message) {
-    const box = document.getElementById('status');
-    box.className = 'status ' + type;
-    box.textContent = message;
-  }
+        setTimeout(() => {
+          box.style.display = 'none';
+        }, 3000);
+      } else {
+        box.style.display = 'block';
+        box.className = 'status-box warning';
+        box.textContent = '⚠️ Mode hors connexion. La carte et l’envoi vers Google Sheets peuvent ne pas fonctionner.';
+      }
+    }
 
-  function initMap() {
-    map = L.map('map').setView([37.2744, 9.8739], 9);
+    window.addEventListener('online', function () {
+      updateOnlineStatus();
+      syncOfflineQueue();
+    });
+
+    window.addEventListener('offline', updateOnlineStatus);
+    updateOnlineStatus();
+    updateQueueStatus();
+    syncOfflineQueue(true);
+
+    /************************************************************
+     * 3A. LOGIQUE DU FORMULAIRE SELON LE TYPE DE BIEN
+     ************************************************************/
+    const typeBienSelect = document.getElementById('typeBien');
+    const piecesWrapper = document.getElementById('piecesWrapper');
+    const typologieWrapper = document.getElementById('typologieWrapper');
+    const etatBienWrapper = document.getElementById('etatBienWrapper');
+    const natureTerrainWrapper = document.getElementById('natureTerrainWrapper');
+    const usageWrapper = document.getElementById('usageWrapper');
+
+    const piecesInput = document.getElementById('pieces');
+    const typologieSelect = document.getElementById('typologie');
+    const etatBienSelect = document.getElementById('etatBien');
+    const natureTerrainSelect = document.getElementById('natureTerrain');
+    const usageBienSelect = document.getElementById('usageBien');
+
+    function updateFieldsByTypeBien() {
+      const type = typeBienSelect.value;
+      const isTerrain = type === 'Terrain';
+      const isProfessional = type === 'Bureau' || type === 'Local commercial';
+
+      piecesWrapper.classList.toggle('hidden-field', isTerrain);
+      typologieWrapper.classList.toggle('hidden-field', isTerrain || isProfessional);
+      etatBienWrapper.classList.toggle('hidden-field', isTerrain);
+      natureTerrainWrapper.classList.toggle('hidden-field', !isTerrain);
+      usageWrapper.classList.toggle('hidden-field', !isProfessional);
+
+      piecesInput.required = !isTerrain;
+      typologieSelect.required = !isTerrain && !isProfessional;
+      etatBienSelect.required = !isTerrain;
+      natureTerrainSelect.required = isTerrain;
+      usageBienSelect.required = isProfessional;
+
+      if (isTerrain) {
+        piecesInput.value = '';
+        typologieSelect.value = '';
+        etatBienSelect.value = '';
+        usageBienSelect.value = '';
+        if (!natureTerrainSelect.value) natureTerrainSelect.value = 'À vérifier';
+      } else if (isProfessional) {
+        typologieSelect.value = '';
+        natureTerrainSelect.value = '';
+        if (!etatBienSelect.value) etatBienSelect.value = 'Neuf';
+        if (!usageBienSelect.value) usageBienSelect.value = type === 'Bureau' ? 'Bureau' : 'Commerce';
+      } else {
+        natureTerrainSelect.value = '';
+        usageBienSelect.value = '';
+        if (!typologieSelect.value) typologieSelect.value = 'S+1';
+        if (!etatBienSelect.value) etatBienSelect.value = 'Neuf';
+      }
+    }
+
+    typeBienSelect.addEventListener('change', updateFieldsByTypeBien);
+    updateFieldsByTypeBien();
+
+
+    /************************************************************
+     * 3B. CALCUL AUTOMATIQUE DU PRIX AU M²
+     ************************************************************/
+    const superficieInput = document.getElementById('superficie');
+    const prixDemandeInput = document.getElementById('prixDemande');
+    const prixVenteInput = document.getElementById('prixVente');
+    const prixM2Preview = document.getElementById('prixM2Preview');
+
+    function parseNumber(value) {
+      return Number(String(value || '').replace(',', '.')) || 0;
+    }
+
+    function calculatePrixM2() {
+      const superficie = parseNumber(superficieInput.value);
+      const prixDemande = parseNumber(prixDemandeInput.value);
+      const prixVente = parseNumber(prixVenteInput.value);
+      const prixReference = prixVente > 0 ? prixVente : prixDemande;
+
+      if (superficie <= 0 || prixReference <= 0) {
+        return '';
+      }
+
+      return prixReference / superficie;
+    }
+
+    function updatePrixM2Preview() {
+      const prixM2 = calculatePrixM2();
+
+      if (!prixM2) {
+        prixM2Preview.innerHTML = 'Saisissez la superficie et le prix demandé ou le prix de vente.<span>—</span>';
+        return;
+      }
+
+      const sourcePrix = parseNumber(prixVenteInput.value) > 0 ? 'prix de vente' : 'prix demandé';
+      prixM2Preview.innerHTML = `Calcul basé sur le ${sourcePrix}<span>${Math.round(prixM2).toLocaleString('fr-FR')} TND/m²</span>`;
+    }
+
+    superficieInput.addEventListener('input', updatePrixM2Preview);
+    prixDemandeInput.addEventListener('input', updatePrixM2Preview);
+    prixVenteInput.addEventListener('input', updatePrixM2Preview);
+    updatePrixM2Preview();
+
+    /************************************************************
+     * 3C. FILE D'ATTENTE HORS LIGNE
+     ************************************************************/
+    function getOfflineQueue() {
+      try {
+        return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY)) || [];
+      } catch (error) {
+        return [];
+      }
+    }
+
+    function saveOfflineQueue(queue) {
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+      updateQueueStatus();
+    }
+
+    function enqueueOfflineData(data) {
+      const queue = getOfflineQueue();
+      queue.push({
+        ...data,
+        file_attente: 'oui',
+        date_mise_en_attente: new Date().toISOString(),
+        queue_id: `Q-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+      });
+      saveOfflineQueue(queue);
+    }
+
+    function updateQueueStatus() {
+      const queueBox = document.getElementById('queueStatus');
+      const count = getOfflineQueue().length;
+
+      if (count === 0) {
+        queueBox.style.display = 'none';
+        queueBox.textContent = '';
+        return;
+      }
+
+      queueBox.style.display = 'block';
+      queueBox.className = navigator.onLine ? 'status-box warning' : 'status-box error';
+      queueBox.innerHTML = `📦 ${count} saisie${count > 1 ? 's' : ''} en attente de synchronisation.<div class="queue-mini">Elles seront envoyées automatiquement dès que la connexion sera disponible.</div>`;
+    }
+
+    async function postDataToApi(data) {
+      if (API_URL === 'VOTRE_URL_ICI') {
+        throw new Error("URL Apps Script non configurée.");
+      }
+
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(data)
+      });
+    }
+
+    async function syncOfflineQueue(silent = false) {
+      if (!navigator.onLine || API_URL === 'VOTRE_URL_ICI') {
+        updateQueueStatus();
+        return;
+      }
+
+      let queue = getOfflineQueue();
+      if (queue.length === 0) {
+        updateQueueStatus();
+        return;
+      }
+
+      const queueBox = document.getElementById('queueStatus');
+      queueBox.style.display = 'block';
+      queueBox.className = 'status-box warning';
+      queueBox.textContent = `⏳ Synchronisation de ${queue.length} saisie(s) en attente...`;
+
+      const remaining = [];
+
+      for (const item of queue) {
+        try {
+          await postDataToApi({
+            ...item,
+            date_synchronisation: new Date().toISOString()
+          });
+        } catch (error) {
+          remaining.push(item);
+        }
+      }
+
+      saveOfflineQueue(remaining);
+
+      if (remaining.length === 0 && !silent) {
+        queueBox.style.display = 'block';
+        queueBox.className = 'status-box success';
+        queueBox.textContent = '✅ Toutes les saisies en attente ont été synchronisées.';
+        setTimeout(updateQueueStatus, 4500);
+      } else {
+        updateQueueStatus();
+      }
+    }
+
+    /************************************************************
+     * 3. INITIALISATION DE LA CARTE
+     ************************************************************/
+    const defaultLat = 37.2744;
+    const defaultLng = 9.8739;
+    const defaultZoom = 12;
+
+    const map = L.map('map', {
+      zoomControl: true,
+      tap: true
+    }).setView([defaultLat, defaultLng], defaultZoom);
 
     const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -557,439 +1070,280 @@
       position: 'topright'
     }).addTo(map);
 
-    markersLayer = L.layerGroup().addTo(map);
-  }
+    let marker = L.marker([defaultLat, defaultLng], {
+      draggable: true
+    }).addTo(map);
 
-  function buildFilters(data) {
-    fillSelect('filterGouvernorat', data.map(d => d.gouvernorat));
-    fillSelect('filterType', data.map(d => d.type_bien));
-    fillSelect('filterStatut', data.map(d => d.statut_offre));
-    fillSelect('filterSource', data.map(d => d.source_information));
-    fillSelect('filterPeriode', data.map(d => d.periode_trimestre));
-    fillSelect('filterAnnee', data.map(d => getYear(d.date_saisie)));
-  }
-
-  function fillSelect(id, values) {
-    const select = document.getElementById(id);
-    const previous = select.value;
-    const unique = [...new Set(values.filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), 'fr'));
-
-    select.innerHTML = '<option value="">Tous</option>' +
-      unique.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
-
-    if (unique.includes(previous)) {
-      select.value = previous;
+    function updateGpsField(lat, lng) {
+      document.getElementById('gps').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
     }
-  }
 
-  function applyFilters() {
-    const gouvernorat = document.getElementById('filterGouvernorat').value;
-    const type = document.getElementById('filterType').value;
-    const statut = document.getElementById('filterStatut').value;
-    const source = document.getElementById('filterSource').value;
-    const periode = document.getElementById('filterPeriode').value;
-    const annee = document.getElementById('filterAnnee').value;
-    const search = document.getElementById('searchText').value.trim().toLowerCase();
+    updateGpsField(defaultLat, defaultLng);
 
-    filteredData = rawData.filter(item => {
-      const matchesFilters =
-        (!gouvernorat || item.gouvernorat === gouvernorat) &&
-        (!type || item.type_bien === type) &&
-        (!statut || item.statut_offre === statut) &&
-        (!source || item.source_information === source) &&
-        (!periode || item.periode_trimestre === periode) &&
-        (!annee || getYear(item.date_saisie) === annee);
-
-      const searchable = [
-        item.id,
-        item.lieu,
-        item.adresse,
-        item.gouvernorat,
-        item.type_bien,
-        item.statut_offre,
-        item.source_information,
-        item.nature_terrain,
-        item.usage_bien
-      ].join(' ').toLowerCase();
-
-      return matchesFilters && (!search || searchable.includes(search));
+    marker.on('dragend', function () {
+      const position = marker.getLatLng();
+      updateGpsField(position.lat, position.lng);
+      map.panTo(position);
     });
 
-    updateKpis(filteredData);
-    updateMap(filteredData);
-    updateCharts(filteredData);
-    updateTable(filteredData);
-  }
+    map.on('click', function (e) {
+      marker.setLatLng(e.latlng);
+      updateGpsField(e.latlng.lat, e.latlng.lng);
+    });
 
-  function updateKpis(data) {
-    const total = data.length;
-    const prixDemande = average(data.map(d => toNumber(d.prix_demande_tnd)).filter(v => v > 0));
-    const prixVente = average(data.map(d => toNumber(d.prix_vente_tnd)).filter(v => v > 0));
-    const prixM2 = average(data.map(d => toNumber(d.prix_m2_tnd)).filter(v => v > 0));
-    const superficie = average(data.map(d => toNumber(d.superficie_m2)).filter(v => v > 0));
-    const vendus = data.filter(d => d.statut_offre === 'Vendu').length;
+    setTimeout(function () {
+      map.invalidateSize();
+    }, 400);
 
-    document.getElementById('kpiTotal').textContent = total.toLocaleString('fr-FR');
-    document.getElementById('kpiPrixDemande').textContent = formatMoney(prixDemande);
-    document.getElementById('kpiPrixVente').textContent = formatMoney(prixVente);
-    document.getElementById('kpiPrixM2').textContent = prixM2 ? Math.round(prixM2).toLocaleString('fr-FR') + ' TND/m²' : '—';
-    document.getElementById('kpiSuperficie').textContent = superficie ? Math.round(superficie).toLocaleString('fr-FR') + ' m²' : '—';
-    document.getElementById('kpiVendus').textContent = vendus.toLocaleString('fr-FR');
-  }
+    /************************************************************
+     * 4. CAPTURE DE LA POSITION GPS
+     ************************************************************/
+    const locateBtn = document.getElementById('locateBtn');
 
-  function updateMap(data) {
-    markersLayer.clearLayers();
+    locateBtn.addEventListener('click', function () {
+      showMessage('', '');
 
-    const bounds = [];
+      if (!navigator.geolocation) {
+        showMessage('error', "La géolocalisation n'est pas disponible sur ce navigateur.");
+        return;
+      }
 
-    data.forEach(item => {
-      const lat = toNumber(item.latitude);
-      const lng = toNumber(item.longitude);
+      locateBtn.disabled = true;
+      locateBtn.textContent = '⏳ Localisation en cours...';
 
-      if (!lat || !lng) return;
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
 
-      const popup = `
-        <strong>${escapeHtml(item.type_bien || 'Bien')}</strong><br>
-        <b>Lieu :</b> ${escapeHtml(item.lieu || '')}<br>
-        <b>Gouvernorat :</b> ${escapeHtml(item.gouvernorat || '')}<br>
-        <b>Superficie :</b> ${formatNumber(item.superficie_m2)} m²<br>
-        <b>Prix demandé :</b> ${formatMoney(item.prix_demande_tnd)}<br>
-        <b>Prix vente :</b> ${formatMoney(item.prix_vente_tnd)}<br>
-        <b>Prix/m² :</b> ${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²<br>
-        <b>Statut :</b> ${escapeHtml(item.statut_offre || '')}
+          marker.setLatLng([lat, lng]);
+          map.setView([lat, lng], 17);
+          updateGpsField(lat, lng);
+
+          locateBtn.disabled = false;
+          locateBtn.textContent = '📍 Capturer ma position';
+        },
+        function (error) {
+          let errorMessage = "Impossible de récupérer votre position.";
+
+          if (error.code === error.PERMISSION_DENIED) {
+            errorMessage = "Autorisation refusée. Activez la localisation dans votre navigateur.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            errorMessage = "Position indisponible. Vérifiez le GPS ou la connexion.";
+          } else if (error.code === error.TIMEOUT) {
+            errorMessage = "La demande de localisation a expiré.";
+          }
+
+          showMessage('error', errorMessage);
+
+          locateBtn.disabled = false;
+          locateBtn.textContent = '📍 Capturer ma position';
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 15000,
+          maximumAge: 0
+        }
+      );
+    });
+
+    /************************************************************
+     * 5. ENVOI DU FORMULAIRE VERS GOOGLE SHEETS
+     ************************************************************/
+    const form = document.getElementById('propertyForm');
+    const submitBtn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      showMessage('', '');
+
+      if (API_URL === 'VOTRE_URL_ICI') {
+        showMessage('error', "Veuillez remplacer API_URL par l'URL de votre Google Apps Script.");
+        return;
+      }
+
+      const gpsValue = document.getElementById('gps').value.trim();
+      const gpsParts = gpsValue.split(',');
+
+      const latitude = gpsParts[0] ? gpsParts[0].trim() : '';
+      const longitude = gpsParts[1] ? gpsParts[1].trim() : '';
+
+      const typeBienValue = document.getElementById('typeBien').value;
+      const isTerrain = typeBienValue === 'Terrain';
+      const isProfessional = typeBienValue === 'Bureau' || typeBienValue === 'Local commercial';
+      const prixM2 = calculatePrixM2();
+
+      const data = {
+        date_enregistrement: new Date().toISOString(),
+
+        createur_application: APP_CREATOR,
+        objectid_application: APP_OBJECT_ID,
+
+        lieu: document.getElementById('lieu').value.trim(),
+        adresse: document.getElementById('adresse').value.trim(),
+        superficie_m2: document.getElementById('superficie').value,
+        nombre_pieces: isTerrain ? '' : document.getElementById('pieces').value,
+        prix_demande_tnd: document.getElementById('prixDemande').value,
+        prix_vente_tnd: document.getElementById('prixVente').value,
+        prix_m2_tnd_app: prixM2 ? Math.round(prixM2) : '',
+
+        periode_trimestre: document.getElementById('periode').value,
+        source_information: document.getElementById('source').value,
+        gouvernorat: document.getElementById('gouvernorat').value,
+        type_bien: typeBienValue,
+        typologie: isTerrain || isProfessional ? '' : document.getElementById('typologie').value,
+        nature_terrain: isTerrain ? document.getElementById('natureTerrain').value : '',
+        usage_bien: isProfessional ? document.getElementById('usageBien').value : '',
+        etat_bien: isTerrain ? '' : document.getElementById('etatBien').value,
+        statut_foncier: document.getElementById('statutFoncier').value,
+        statut_offre: document.getElementById('statutOffre').value,
+
+        coordonnees_gps: gpsValue,
+        latitude: latitude,
+        longitude: longitude
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Enregistrement en cours...';
+
+      try {
+        if (!navigator.onLine) {
+          enqueueOfflineData(data);
+          showMessage('warning', '📦 Vous êtes hors connexion : la saisie est gardée en attente et sera envoyée automatiquement dès le retour d’Internet.');
+          showThankYouScreen('queued');
+        } else {
+          await postDataToApi(data);
+          showMessage('success', '✅ Bien enregistré avec succès dans la base Google Sheets.');
+          showThankYouScreen('success');
+          syncOfflineQueue(true);
+        }
+
+        form.reset();
+        document.getElementById('gouvernorat').value = 'Bizerte';
+        document.getElementById('typeBien').value = 'Appartement';
+        updateFieldsByTypeBien();
+        updatePrixM2Preview();
+
+        const currentPosition = marker.getLatLng();
+        updateGpsField(currentPosition.lat, currentPosition.lng);
+
+      } catch (error) {
+        console.error(error);
+        enqueueOfflineData(data);
+        showMessage('warning', '📦 La connexion semble instable : la saisie a été gardée en file d’attente et sera renvoyée automatiquement.');
+        showThankYouScreen('queued');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '💾 Enregistrer le bien';
+      }
+    });
+
+    /************************************************************
+     * 6. MESSAGES UTILISATEUR
+     ************************************************************/
+    function showMessage(type, text) {
+      const messageBox = document.getElementById('message');
+
+      messageBox.className = 'message';
+      messageBox.textContent = '';
+
+      if (!type || !text) {
+        return;
+      }
+
+      messageBox.classList.add(type);
+      messageBox.textContent = text;
+
+      messageBox.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+
+    /************************************************************
+     * 7. ÉCRAN DE REMERCIEMENT
+     ************************************************************/
+    function showThankYouScreen(mode = 'success') {
+      const title = document.getElementById('thankYouTitle');
+      const text = document.getElementById('thankYouText');
+
+      if (mode === 'queued') {
+        title.textContent = 'Saisie gardée en attente';
+        text.textContent = 'Vous êtes hors connexion ou la connexion est instable. Les informations sont conservées localement sur ce téléphone et seront envoyées automatiquement dès que la connexion sera disponible.';
+      } else {
+        title.textContent = 'Merci pour votre collaboration';
+        text.textContent = 'Les informations saisies sont strictement gardées et utilisées exclusivement dans un but scientifique.';
+      }
+
+      document.getElementById('thankYouScreen').classList.add('active');
+    }
+
+    function closeThankYouScreen() {
+      document.getElementById('thankYouScreen').classList.remove('active');
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    function quitApplication() {
+      document.getElementById('thankYouScreen').classList.remove('active');
+
+      document.body.innerHTML = `
+        <main style="
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 24px;
+          background: #f3f4f6;
+          font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        ">
+          <section style="
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            border-radius: 24px;
+            padding: 28px 22px;
+            text-align: center;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+          ">
+            <div style="font-size: 3rem; margin-bottom: 10px;">👋</div>
+            <h2 style="margin: 0 0 12px; color: #115e59;">Session terminée</h2>
+            <p style="color: #374151; line-height: 1.5;">
+              Merci pour votre collaboration. Vous pouvez maintenant fermer cette fenêtre
+              ou revenir à l’écran d’accueil du smartphone.
+            </p>
+            <p style="font-size: 0.82rem; color: #6b7280; line-height: 1.5;">
+              Observatoire du Marché Immobilier<br>
+              Créé par <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer" class="creator-link">Brahim Jaziri</a><br>
+              ObjectID application : OMI-BJ-2026-001
+            </p>
+            <button onclick="location.reload()" style="
+              width: 100%;
+              border: none;
+              border-radius: 14px;
+              padding: 14px 16px;
+              background: #0f766e;
+              color: white;
+              font-size: 1rem;
+              font-weight: 700;
+              cursor: pointer;
+            ">Revenir à l’application</button>
+          </section>
+        </main>
       `;
 
-      L.marker([lat, lng]).bindPopup(popup).addTo(markersLayer);
-      bounds.push([lat, lng]);
-    });
-
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
-    }
-  }
-
-  function updateCharts(data) {
-    renderCountChart('chartType', countBy(data, 'type_bien'), 'bar');
-    renderCountChart('chartStatut', countBy(data, 'statut_offre'), 'doughnut');
-    renderCountChart('chartGouvernorat', countBy(data, 'gouvernorat'), 'bar');
-    renderAverageChart('chartPrixM2Type', averageBy(data, 'type_bien', 'prix_m2_tnd'), 'bar');
-  }
-
-  function renderCountChart(canvasId, dataset, type) {
-    const labels = Object.keys(dataset);
-    const values = Object.values(dataset);
-
-    destroyChart(canvasId);
-
-    charts[canvasId] = new Chart(document.getElementById(canvasId), {
-      type,
-      data: {
-        labels,
-        datasets: [{
-          label: 'Nombre de biens',
-          data: values
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: type === 'doughnut'
-          }
-        },
-        scales: type === 'doughnut' ? {} : {
-          y: {
-            beginAtZero: true,
-            ticks: { precision: 0 }
-          }
-        }
+      try {
+        window.close();
+      } catch (e) {
+        console.log('Fermeture automatique non autorisée par le navigateur.');
       }
-    });
-  }
-
-  function renderAverageChart(canvasId, dataset, type) {
-    const labels = Object.keys(dataset);
-    const values = Object.values(dataset).map(v => Math.round(v));
-
-    destroyChart(canvasId);
-
-    charts[canvasId] = new Chart(document.getElementById(canvasId), {
-      type,
-      data: {
-        labels,
-        datasets: [{
-          label: 'Prix moyen au m²',
-          data: values
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: { beginAtZero: true }
-        }
-      }
-    });
-  }
-
-  function destroyChart(canvasId) {
-    if (charts[canvasId]) {
-      charts[canvasId].destroy();
-      charts[canvasId] = null;
-    }
-  }
-
-  function updateTable(data) {
-    const body = document.getElementById('tableBody');
-
-    if (data.length === 0) {
-      body.innerHTML = '<tr><td colspan="14">Aucun bien ne correspond aux filtres.</td></tr>';
-      return;
     }
 
-    body.innerHTML = data.map(item => `
-      <tr>
-        <td>${escapeHtml(item.id)}</td>
-        <td>${escapeHtml(item.date_saisie)}</td>
-        <td>${escapeHtml(item.lieu)}</td>
-        <td>${escapeHtml(item.gouvernorat)}</td>
-        <td><span class="badge">${escapeHtml(item.type_bien)}</span></td>
-        <td>${escapeHtml(item.typologie)}</td>
-        <td>${escapeHtml(item.nature_terrain)}</td>
-        <td>${escapeHtml(item.usage_bien)}</td>
-        <td>${formatNumber(item.superficie_m2)} m²</td>
-        <td>${formatMoney(item.prix_demande_tnd)}</td>
-        <td>${formatMoney(item.prix_vente_tnd)}</td>
-        <td>${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²</td>
-        <td>${escapeHtml(item.statut_offre)}</td>
-        <td>${escapeHtml(item.source_information)}</td>
-      </tr>
-    `).join('');
-  }
-
-  function countBy(data, field) {
-    return data.reduce((acc, item) => {
-      const key = item[field] || 'Non renseigné';
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {});
-  }
-
-  function averageBy(data, categoryField, valueField) {
-    const groups = {};
-
-    data.forEach(item => {
-      const key = item[categoryField] || 'Non renseigné';
-      const value = toNumber(item[valueField]);
-
-      if (value <= 0) return;
-
-      if (!groups[key]) groups[key] = [];
-      groups[key].push(value);
-    });
-
-    const result = {};
-
-    Object.keys(groups).forEach(key => {
-      result[key] = average(groups[key]);
-    });
-
-    return result;
-  }
-
-  function average(values) {
-    if (!values.length) return 0;
-    return values.reduce((sum, value) => sum + value, 0) / values.length;
-  }
-
-  function toNumber(value) {
-    return Number(value) || 0;
-  }
-
-  function formatNumber(value) {
-    const n = toNumber(value);
-    if (!n) return '—';
-    return n.toLocaleString('fr-FR');
-  }
-
-  function formatMoney(value) {
-    const n = toNumber(value);
-    if (!n) return '—';
-    return Math.round(n).toLocaleString('fr-FR') + ' TND';
-  }
-
-  function getYear(value) {
-    if (!value) return '';
-
-    const textValue = String(value).trim();
-
-    const directMatch = textValue.match(/^(\d{4})/);
-    if (directMatch) {
-      return directMatch[1];
-    }
-
-    const parsedDate = new Date(textValue);
-    if (!isNaN(parsedDate.getTime())) {
-      return String(parsedDate.getFullYear());
-    }
-
-    return '';
-  }
-
-
-  /************************************************************
-   * EXPORT DES DONNÉES FILTRÉES : JSON ET GEOJSON
-   ************************************************************/
-  function exportFilteredJson() {
-    const dataToExport = Array.isArray(filteredData) ? filteredData : [];
-
-    if (dataToExport.length === 0) {
-      alert("Aucune donnée à exporter avec les filtres actuels.");
-      return;
-    }
-
-    const payload = {
-      type: "ObservatoireMarcheImmobilierExport",
-      format: "JSON",
-      generated_at: new Date().toISOString(),
-      count: dataToExport.length,
-      filters: getActiveFilters(),
-      data: dataToExport
-    };
-
-    downloadTextFile(
-      JSON.stringify(payload, null, 2),
-      buildExportFileName("observatoire_immobilier", "json"),
-      "application/json;charset=utf-8"
-    );
-  }
-
-  function exportFilteredGeoJson() {
-    const dataToExport = Array.isArray(filteredData) ? filteredData : [];
-
-    if (dataToExport.length === 0) {
-      alert("Aucune donnée à exporter avec les filtres actuels.");
-      return;
-    }
-
-    const features = dataToExport
-      .map(item => {
-        const lat = toNumber(item.latitude);
-        const lng = toNumber(item.longitude);
-
-        if (!lat || !lng) {
-          return null;
-        }
-
-        const properties = { ...item };
-        delete properties.latitude;
-        delete properties.longitude;
-
-        return {
-          type: "Feature",
-          geometry: {
-            type: "Point",
-            coordinates: [lng, lat]
-          },
-          properties: properties
-        };
-      })
-      .filter(Boolean);
-
-    if (features.length === 0) {
-      alert("Aucun point GPS valide à exporter en GeoJSON.");
-      return;
-    }
-
-    const geojson = {
-      type: "FeatureCollection",
-      name: "observatoire_immobilier",
-      generated_at: new Date().toISOString(),
-      count: features.length,
-      filters: getActiveFilters(),
-      crs: {
-        type: "name",
-        properties: {
-          name: "urn:ogc:def:crs:OGC:1.3:CRS84"
-        }
-      },
-      features: features
-    };
-
-    downloadTextFile(
-      JSON.stringify(geojson, null, 2),
-      buildExportFileName("observatoire_immobilier", "geojson"),
-      "application/geo+json;charset=utf-8"
-    );
-  }
-
-  function getActiveFilters() {
-    return {
-      gouvernorat: document.getElementById("filterGouvernorat")?.value || "",
-      type_bien: document.getElementById("filterType")?.value || "",
-      statut_offre: document.getElementById("filterStatut")?.value || "",
-      source_information: document.getElementById("filterSource")?.value || "",
-      periode_trimestre: document.getElementById("filterPeriode")?.value || "",
-      annee: document.getElementById("filterAnnee")?.value || "",
-      recherche: document.getElementById("searchText")?.value || ""
-    };
-  }
-
-  function buildExportFileName(prefix, extension) {
-    const now = new Date();
-    const yyyy = now.getFullYear();
-    const mm = String(now.getMonth() + 1).padStart(2, "0");
-    const dd = String(now.getDate()).padStart(2, "0");
-    const hh = String(now.getHours()).padStart(2, "0");
-    const min = String(now.getMinutes()).padStart(2, "0");
-
-    const filters = getActiveFilters();
-    const parts = [
-      prefix,
-      filters.annee || "toutes_annees",
-      filters.gouvernorat || "tous_gouvernorats",
-      filters.type_bien || "tous_types",
-      `${yyyy}${mm}${dd}_${hh}${min}`
-    ];
-
-    const cleanName = parts
-      .join("_")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-zA-Z0-9_]+/g, "_")
-      .replace(/_+/g, "_")
-      .replace(/^_|_$/g, "")
-      .toLowerCase();
-
-    return `${cleanName}.${extension}`;
-  }
-
-  function downloadTextFile(content, filename, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-
-    setTimeout(() => {
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }, 100);
-  }
-
-  function escapeHtml(value) {
-    return String(value ?? '')
-      .replaceAll('&', '&amp;')
-      .replaceAll('<', '&lt;')
-      .replaceAll('>', '&gt;')
-      .replaceAll('"', '&quot;')
-      .replaceAll("'", '&#039;');
-  }
-</script>
+  </script>
 
 </body>
 </html>
