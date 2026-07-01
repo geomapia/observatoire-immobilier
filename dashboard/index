@@ -923,7 +923,7 @@
   <p>Visualisation automatique des biens collectés sur le terrain</p>
 
   <div class="top-links">
-    <a href="./index.html">← Retour à l’application</a>
+    <a href="https://geomapia.github.io/observatoire-immobilier/">← Retour à l’application</a>
     <button type="button" onclick="loadData()">↻ Actualiser</button>
     <button type="button" class="logout-dashboard" onclick="logoutDashboard()">🔒 Verrouiller</button>
     <button type="button" onclick="exportFilteredJson()">⬇ Export JSON</button>
@@ -1320,6 +1320,8 @@
   }
 
   document.addEventListener('DOMContentLoaded', () => {
+    fixReturnApplicationLink();
+
     const input = document.getElementById('accessCodeInput');
 
     if (input) {
@@ -1336,6 +1338,17 @@
       showAccessScreen();
     }
   });
+
+
+  function fixReturnApplicationLink() {
+    const links = Array.from(document.querySelectorAll('a'));
+    const returnLink = links.find(link => link.textContent.includes('Retour à l’application'));
+
+    if (returnLink) {
+      returnLink.href = 'https://geomapia.github.io/observatoire-immobilier/';
+      returnLink.removeAttribute('target');
+    }
+  }
 
   const API_URL = 'https://script.google.com/macros/s/AKfycbwI95O6XCQBOQEO4Aiuk-EuHVaGWTfyf0iFcIww0zFtp-MeiyOFQhBb4iC0VO_STtax/exec';
 
@@ -1364,6 +1377,7 @@
   ];
 
   document.addEventListener('DOMContentLoaded', () => {
+    fixReturnApplicationLink();
     initMap();
 
     filterIds.forEach(id => {
