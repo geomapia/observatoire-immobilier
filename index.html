@@ -680,6 +680,9 @@ header h1 {
       <button type="button" class="btn btn-location" id="locateBtn">
         📍 Capturer ma position
       </button>
+      <p class="help-text">
+        Sur smartphone, activez le GPS et autorisez la localisation dans Chrome ou dans l’application installée.
+      </p>
 
       <div id="map"></div>
 
@@ -1336,17 +1339,6 @@ header h1 {
     }
 
     function getCurrentGpsCoordinates() {
-      if (!positionConfirmed) {
-        showMessage('error', "Veuillez confirmer la position réelle du bien : cliquez sur « Capturer ma position » ou placez le point manuellement sur la carte.");
-        document.getElementById('map').scrollIntoView({
-          behavior: 'smooth',
-          block: 'center'
-        });
-        return;
-      }
-
-      refreshPhotoCoordinatesDisplay();
-
       const gpsValue = document.getElementById('gps').value.trim();
       const gpsParts = gpsValue.split(',');
 
@@ -1375,12 +1367,54 @@ header h1 {
     }, 400);
 
     /************************************************************
-     * 4. CAPTURE DE LA POSITION GPS
+     * 4. CAPTURE DE LA POSITION GPS — VERSION SMARTPHONE ROBUSTE
      ************************************************************/
     const locateBtn = document.getElementById('locateBtn');
 
-    locateBtn.addEventListener('click', function () {
+    function applyGpsPosition(position, methodLabel = 'gps') {
+      const lat = Number(position.coords.latitude);
+      const lng = Number(position.coords.longitude);
+      const accuracy = Math.round(position.coords.accuracy || 0);
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+        throw new Error('Coordonnées GPS invalides.');
+      }
+
+      marker.setLatLng([lat, lng]);
+      map.setView([lat, lng], 17);
+      updateGpsField(lat, lng, methodLabel);
+
+      const accuracyText = accuracy > 0 ? ` Précision estimée : ±${accuracy} m.` : '';
+      showMessage('success', `✅ Position GPS capturée avec succès.${accuracyText}`);
+    }
+
+    function showGpsError(error) {
+      let errorMessage = "Impossible de récupérer votre position.";
+
+      if (error && error.code === error.PERMISSION_DENIED) {
+        errorMessage = "Autorisation refusée. Sur le smartphone, autorisez la localisation pour Chrome ou pour cette application.";
+      } else if (error && error.code === error.POSITION_UNAVAILABLE) {
+        errorMessage = "Position indisponible. Activez le GPS du téléphone, sortez près d’une fenêtre ou essayez dehors.";
+      } else if (error && error.code === error.TIMEOUT) {
+        errorMessage = "La localisation a pris trop de temps. Vérifiez que le GPS du téléphone est activé puis réessayez.";
+      }
+
+      showMessage('error', errorMessage + " Vous pouvez aussi placer le point manuellement sur la carte.");
+    }
+
+    function getPositionWithOptions(options) {
+      return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+    }
+
+    async function captureGpsPosition() {
       showMessage('', '');
+
+      if (!window.isSecureContext) {
+        showMessage('error', "La géolocalisation nécessite une connexion sécurisée HTTPS. Ouvrez l’application depuis le lien GitHub Pages en https://.");
+        return;
+      }
 
       if (!navigator.geolocation) {
         showMessage('error', "La géolocalisation n'est pas disponible sur ce navigateur.");
@@ -1390,42 +1424,40 @@ header h1 {
       locateBtn.disabled = true;
       locateBtn.textContent = '⏳ Localisation en cours...';
 
-      navigator.geolocation.getCurrentPosition(
-        function (position) {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-
-          marker.setLatLng([lat, lng]);
-          map.setView([lat, lng], 17);
-          updateGpsField(lat, lng, 'gps');
-          showMessage('success', '✅ Position GPS capturée avec succès.');
-
-          locateBtn.disabled = false;
-          locateBtn.textContent = '📍 Capturer ma position';
-        },
-        function (error) {
-          let errorMessage = "Impossible de récupérer votre position.";
-
-          if (error.code === error.PERMISSION_DENIED) {
-            errorMessage = "Autorisation refusée. Activez la localisation dans votre navigateur.";
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            errorMessage = "Position indisponible. Vérifiez le GPS ou la connexion.";
-          } else if (error.code === error.TIMEOUT) {
-            errorMessage = "La demande de localisation a expiré.";
-          }
-
-          showMessage('error', errorMessage);
-
-          locateBtn.disabled = false;
-          locateBtn.textContent = '📍 Capturer ma position';
-        },
-        {
+      try {
+        const position = await getPositionWithOptions({
           enableHighAccuracy: true,
-          timeout: 15000,
+          timeout: 30000,
           maximumAge: 0
+        });
+
+        applyGpsPosition(position, 'gps');
+
+      } catch (firstError) {
+        console.warn('Premier essai GPS échoué :', firstError);
+
+        try {
+          locateBtn.textContent = '⏳ Deuxième essai GPS...';
+
+          const position = await getPositionWithOptions({
+            enableHighAccuracy: false,
+            timeout: 20000,
+            maximumAge: 60000
+          });
+
+          applyGpsPosition(position, 'gps');
+
+        } catch (secondError) {
+          console.warn('Deuxième essai GPS échoué :', secondError);
+          showGpsError(secondError || firstError);
         }
-      );
-    });
+      } finally {
+        locateBtn.disabled = false;
+        locateBtn.textContent = '📍 Capturer ma position';
+      }
+    }
+
+    locateBtn.addEventListener('click', captureGpsPosition);
 
 
     /************************************************************
@@ -1662,6 +1694,17 @@ header h1 {
         showMessage('error', "Veuillez remplacer API_URL par l'URL de votre Google Apps Script.");
         return;
       }
+
+      if (!positionConfirmed) {
+        showMessage('error', "Veuillez confirmer la position réelle du bien : cliquez sur « Capturer ma position » ou placez le point manuellement sur la carte.");
+        document.getElementById('map').scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+        return;
+      }
+
+      refreshPhotoCoordinatesDisplay();
 
       const gpsValue = document.getElementById('gps').value.trim();
       const gpsParts = gpsValue.split(',');
