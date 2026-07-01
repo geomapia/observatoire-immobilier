@@ -230,6 +230,56 @@
       background: #e5e7eb;
     }
 
+
+    .map-tools {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: #f9fafb;
+    }
+
+    .map-tools .tool {
+      min-width: 0;
+    }
+
+    .map-note {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .map-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+    }
+
+    .map-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--primary-dark);
+      border: 1px solid #99f6e4;
+      font-size: 0.78rem;
+      font-weight: 900;
+    }
+
+    @media (min-width: 720px) {
+      .map-tools {
+        grid-template-columns: repeat(3, 1fr);
+        align-items: end;
+      }
+    }
+
     .table-wrap {
       overflow-x: auto;
       border: 1px solid #e5e7eb;
@@ -268,6 +318,72 @@
       background: #ecfdf5;
       color: var(--primary-dark);
       font-weight: 800;
+      font-size: 0.78rem;
+    }
+
+
+    .photo-mini-list {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .photo-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: var(--primary-dark);
+      border: 1px solid #99f6e4;
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .popup-photos {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .popup-photos-title {
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 6px;
+    }
+
+    .popup-photo-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(80px, 1fr));
+      gap: 6px;
+      max-width: 240px;
+    }
+
+    .popup-photo-grid a {
+      display: block;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #d1d5db;
+      background: #f9fafb;
+      text-decoration: none;
+      color: var(--primary-dark);
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-align: center;
+      padding: 6px;
+    }
+
+    .photo-count-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #fff7ed;
+      color: #9a3412;
+      border: 1px solid #fed7aa;
+      font-weight: 900;
       font-size: 0.78rem;
     }
 
@@ -380,6 +496,391 @@
       .filters { grid-template-columns: repeat(6, 1fr); }
       .kpis { grid-template-columns: repeat(6, 1fr); }
     }
+
+    /* ===== Design moderne ===== */
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(15,118,110,0.14), transparent 34%),
+        radial-gradient(circle at top right, rgba(245,158,11,0.13), transparent 28%),
+        var(--bg);
+    }
+
+    header {
+      position: relative;
+      overflow: hidden;
+      padding-top: 30px;
+    }
+
+    header::before {
+      content: "";
+      position: absolute;
+      inset: -120px auto auto 50%;
+      width: 420px;
+      height: 420px;
+      transform: translateX(-50%);
+      border-radius: 50%;
+      background: rgba(255,255,255,0.10);
+      filter: blur(1px);
+    }
+
+    header h1,
+    header p,
+    .top-links {
+      position: relative;
+      z-index: 2;
+    }
+
+    .top-links a,
+    .top-links button {
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 22px rgba(0,0,0,0.13);
+      transition: transform .15s ease, background .15s ease;
+    }
+
+    .top-links a:hover,
+    .top-links button:hover {
+      transform: translateY(-1px);
+      background: rgba(255,255,255,0.20);
+    }
+
+    .card {
+      border: 1px solid rgba(255,255,255,0.72);
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      letter-spacing: -0.01em;
+    }
+
+    .kpi {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+
+    .kpi:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(15, 118, 110, 0.12);
+    }
+
+    .kpi .value {
+      letter-spacing: -0.03em;
+    }
+
+    .chart-box {
+      border: 1px solid rgba(209, 213, 219, 0.75);
+    }
+
+    .map-tools {
+      background: linear-gradient(180deg, #ffffff, #f9fafb);
+    }
+
+    #map {
+      min-height: 460px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+    }
+
+    .heat-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 0;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 750;
+    }
+
+    .heat-gradient {
+      width: 170px;
+      height: 12px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(14,165,233,0.25), rgba(34,197,94,0.55), rgba(245,158,11,0.70), rgba(239,68,68,0.85));
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .leaflet-marker-icon.default-point-marker {
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.22));
+    }
+
+    .leaflet-interactive.heat-circle {
+      filter: blur(0.2px);
+    }
+
+    .export-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 720px) {
+      #map { min-height: 390px; }
+      .top-links { gap: 8px; }
+      .top-links a, .top-links button { font-size: 0.78rem; padding: 8px 10px; }
+    }
+
+
+    /* ===== Améliorations analytiques : fiche, classes de prix, filtres avancés ===== */
+    .advanced-filters {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .filter-group-title {
+      grid-column: 1 / -1;
+      font-size: 0.86rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-top: 2px;
+    }
+
+    .btn-reset-filters {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 14px;
+      min-height: 46px;
+      background: #e5e7eb;
+      color: #111827;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .map-legend-card {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.78);
+    }
+
+    .legend-title {
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 8px;
+      font-size: 0.86rem;
+    }
+
+    .price-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: #374151;
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      display: inline-block;
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.9), 0 4px 8px rgba(0,0,0,0.18);
+    }
+
+    .class-low { background: #16a34a; }
+    .class-medium { background: #eab308; }
+    .class-high { background: #f97316; }
+    .class-very-high { background: #dc2626; }
+    .class-unknown { background: #64748b; }
+
+    .detail-panel {
+      position: fixed;
+      right: 18px;
+      top: 18px;
+      bottom: 18px;
+      width: min(440px, calc(100vw - 36px));
+      background: rgba(255,255,255,0.98);
+      border: 1px solid rgba(209,213,219,0.85);
+      border-radius: 24px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.28);
+      z-index: 99998;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+    }
+
+    .detail-panel.active {
+      display: flex;
+    }
+
+    .detail-header {
+      padding: 16px 16px 13px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      color: white;
+      position: relative;
+    }
+
+    .detail-header h2 {
+      margin: 0 42px 5px 0;
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .detail-header p {
+      margin: 0;
+      color: #d1fae5;
+      font-size: 0.86rem;
+    }
+
+    .detail-close {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.45);
+      background: rgba(255,255,255,0.14);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .detail-body {
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .detail-metric {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 10px;
+      background: #f9fafb;
+    }
+
+    .detail-metric .name {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+
+    .detail-metric .val {
+      color: var(--primary-dark);
+      font-weight: 950;
+      font-size: 0.96rem;
+      line-height: 1.25;
+      word-break: break-word;
+    }
+
+    .detail-section {
+      margin: 14px 0;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .detail-section h3 {
+      margin: 0 0 8px;
+      color: var(--primary-dark);
+      font-size: 0.94rem;
+    }
+
+    .detail-line {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px dashed #e5e7eb;
+      font-size: 0.84rem;
+    }
+
+    .detail-line strong {
+      color: #374151;
+    }
+
+    .detail-photos {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .detail-photo-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #ecfdf5;
+      color: var(--primary-dark);
+      border: 1px solid #99f6e4;
+      text-decoration: none;
+      font-weight: 900;
+      font-size: 0.84rem;
+    }
+
+    .territory-summary {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .territory-table {
+      min-width: 1080px;
+    }
+
+    .row-clickable {
+      cursor: pointer;
+    }
+
+    .row-clickable:hover td {
+      background: #ecfdf5 !important;
+    }
+
+    @media (min-width: 720px) {
+      .advanced-filters {
+        grid-template-columns: repeat(4, 1fr);
+      }
+
+      .territory-summary {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .detail-panel {
+        left: 10px;
+        right: 10px;
+        top: 10px;
+        bottom: 10px;
+        width: auto;
+        border-radius: 20px;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .detail-line {
+        grid-template-columns: 1fr;
+      }
+    }
+
   </style>
 </head>
 
@@ -426,6 +927,7 @@
     <button type="button" onclick="loadData()">↻ Actualiser</button>
     <button type="button" class="logout-dashboard" onclick="logoutDashboard()">🔒 Verrouiller</button>
     <button type="button" onclick="exportFilteredJson()">⬇ Export JSON</button>
+    <button type="button" onclick="exportFilteredCsv()">⬇ Export CSV</button>
     <button type="button" onclick="exportFilteredGeoJson()">⬇ Export GeoJSON</button>
     <a href="https://brahimjaziri.jimdofree.com/" target="_blank" rel="noopener noreferrer">Brahim Jaziri</a>
   </div>
@@ -472,8 +974,61 @@
       </div>
 
       <div>
+        <label for="filterPhotos">Photos</label>
+        <select id="filterPhotos">
+          <option value="">Tous</option>
+          <option value="avec">Avec photos</option>
+          <option value="sans">Sans photos</option>
+        </select>
+      </div>
+
+      <div>
         <label for="searchText">Recherche</label>
         <input type="search" id="searchText" placeholder="Lieu, adresse..." />
+      </div>
+    </div>
+
+    <div class="advanced-filters">
+      <div class="filter-group-title">Filtres numériques avancés</div>
+
+      <div>
+        <label for="filterPrixM2Min">Prix/m² min.</label>
+        <input type="number" id="filterPrixM2Min" min="0" step="1" placeholder="Ex. 1000" />
+      </div>
+
+      <div>
+        <label for="filterPrixM2Max">Prix/m² max.</label>
+        <input type="number" id="filterPrixM2Max" min="0" step="1" placeholder="Ex. 3000" />
+      </div>
+
+      <div>
+        <label for="filterPrixMin">Prix demandé min.</label>
+        <input type="number" id="filterPrixMin" min="0" step="1" placeholder="Ex. 100000" />
+      </div>
+
+      <div>
+        <label for="filterPrixMax">Prix demandé max.</label>
+        <input type="number" id="filterPrixMax" min="0" step="1" placeholder="Ex. 500000" />
+      </div>
+
+      <div>
+        <label for="filterSuperficieMin">Superficie min.</label>
+        <input type="number" id="filterSuperficieMin" min="0" step="1" placeholder="Ex. 80" />
+      </div>
+
+      <div>
+        <label for="filterSuperficieMax">Superficie max.</label>
+        <input type="number" id="filterSuperficieMax" min="0" step="1" placeholder="Ex. 250" />
+      </div>
+
+      <div>
+        <label for="filterNegociationMin">Négociation min. (%)</label>
+        <input type="number" id="filterNegociationMin" min="0" step="0.1" placeholder="Ex. 5" />
+      </div>
+
+      <div>
+        <label>&nbsp;</label>
+        <button type="button" class="btn-reset-filters" onclick="resetAdvancedFilters()">Réinitialiser</button>
       </div>
     </div>
   </section>
@@ -511,12 +1066,74 @@
         <div class="label">Biens vendus</div>
         <div class="value" id="kpiVendus">—</div>
       </div>
+
+      <div class="kpi">
+        <div class="label">Photos enregistrées</div>
+        <div class="value" id="kpiPhotos">—</div>
+      </div>
     </div>
   </section>
 
   <section class="card">
-    <h2 class="section-title">🗺️ Carte des biens</h2>
+    <h2 class="section-title">🗺️ Carte des biens — points et heatmap</h2>
+
+    <div class="map-tools">
+      <div class="tool">
+        <label for="mapDisplayMode">Affichage cartographique</label>
+        <select id="mapDisplayMode">
+          <option value="points_heatmap">Points + heatmap</option>
+          <option value="points">Points uniquement</option>
+          <option value="heatmap">Heatmap uniquement</option>
+        </select>
+      </div>
+
+      <div class="tool">
+        <label for="heatMetric">Pondération heatmap</label>
+        <select id="heatMetric">
+          <option value="count">Densité des biens</option>
+          <option value="prix_m2_tnd">Prix moyen au m²</option>
+          <option value="prix_demande_tnd">Prix demandé</option>
+          <option value="prix_vente_tnd">Prix de vente</option>
+        </select>
+      </div>
+
+      <div class="tool">
+        <label for="heatRadius">Rayon heatmap</label>
+        <select id="heatRadius">
+          <option value="18">Fin</option>
+          <option value="26" selected>Moyen</option>
+          <option value="36">Large</option>
+        </select>
+      </div>
+    </div>
+
     <div id="map"></div>
+
+    <div class="map-stats" id="mapStats">
+      <span class="map-stat">Points affichés : —</span>
+    </div>
+
+    <div class="heat-legend" id="heatLegend">
+      <span>Faible</span>
+      <span class="heat-gradient"></span>
+      <span>Fort</span>
+    </div>
+
+    <div class="map-legend-card" id="priceLegend">
+      <div class="legend-title">Classes de prix au m²</div>
+      <div class="price-legend">
+        <span class="legend-item"><span class="legend-dot class-low"></span>Faible</span>
+        <span class="legend-item"><span class="legend-dot class-medium"></span>Moyen</span>
+        <span class="legend-item"><span class="legend-dot class-high"></span>Élevé</span>
+        <span class="legend-item"><span class="legend-dot class-very-high"></span>Très élevé</span>
+        <span class="legend-item"><span class="legend-dot class-unknown"></span>Non renseigné</span>
+      </div>
+    </div>
+
+    <p class="map-note">
+      La carte respecte les filtres actifs : gouvernorat, type de bien, statut, source, période, année, photos et recherche.
+      La heatmap permet de lire les concentrations spatiales et les niveaux de prix.
+    </p>
   </section>
 
   <section class="charts">
@@ -541,6 +1158,59 @@
     </div>
   </section>
 
+  <section class="charts">
+    <div class="card chart-box">
+      <h2 class="section-title">⏱️ Évolution temporelle des prix au m²</h2>
+      <div class="chart-container"><canvas id="chartPrixM2Temps"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">🗺️ Prix moyen au m² par gouvernorat</h2>
+      <div class="chart-container"><canvas id="chartPrixM2Gouvernorat"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">📈 Évolution du prix demandé moyen</h2>
+      <div class="chart-container"><canvas id="chartPrixDemandeTemps"></canvas></div>
+    </div>
+
+    <div class="card chart-box">
+      <h2 class="section-title">💵 Évolution du prix de vente moyen</h2>
+      <div class="chart-container"><canvas id="chartPrixVenteTemps"></canvas></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2 class="section-title">🌍 Indicateurs territoriaux</h2>
+    <p class="map-note">
+      Les indicateurs ci-dessous sont recalculés automatiquement selon les filtres actifs. 
+      Le prix médian est ajouté pour limiter l’effet des valeurs extrêmes.
+    </p>
+
+    <div class="table-wrap">
+      <table class="territory-table">
+        <thead>
+          <tr>
+            <th>Gouvernorat</th>
+            <th>Biens</th>
+            <th>Avec GPS</th>
+            <th>Avec photos</th>
+            <th>Prix/m² moyen</th>
+            <th>Prix/m² médian</th>
+            <th>Prix/m² min.</th>
+            <th>Prix/m² max.</th>
+            <th>Prix demandé moyen</th>
+            <th>Prix vente moyen</th>
+            <th>Superficie moyenne</th>
+            <th>Vendus</th>
+            <th>Taux négociation moyen</th>
+          </tr>
+        </thead>
+        <tbody id="territoryBody"></tbody>
+      </table>
+    </div>
+  </section>
+
   <section class="card">
     <h2 class="section-title">📋 Tableau des biens</h2>
     <div class="table-wrap">
@@ -561,6 +1231,7 @@
             <th>Prix/m²</th>
             <th>Latitude</th>
             <th>Longitude</th>
+            <th>Photos</th>
             <th>Statut</th>
             <th>Source</th>
           </tr>
@@ -571,6 +1242,15 @@
   </section>
 
 </main>
+
+<aside id="detailPanel" class="detail-panel" aria-live="polite">
+  <div class="detail-header">
+    <button type="button" class="detail-close" onclick="closeDetailPanel()">×</button>
+    <h2 id="detailTitle">Fiche du bien</h2>
+    <p id="detailSubtitle">Détails de l’observation</p>
+  </div>
+  <div class="detail-body" id="detailBody"></div>
+</aside>
 
 <footer>
   Observatoire du Marché Immobilier — Dashboard de visualisation<br>
@@ -663,6 +1343,7 @@
   let filteredData = [];
   let map;
   let markersLayer;
+  let heatLayer;
   let charts = {};
 
   const filterIds = [
@@ -671,17 +1352,39 @@
     'filterStatut',
     'filterSource',
     'filterPeriode',
-    'filterAnnee'
+    'filterAnnee',
+    'filterPhotos',
+    'filterPrixM2Min',
+    'filterPrixM2Max',
+    'filterPrixMin',
+    'filterPrixMax',
+    'filterSuperficieMin',
+    'filterSuperficieMax',
+    'filterNegociationMin'
   ];
 
   document.addEventListener('DOMContentLoaded', () => {
     initMap();
 
     filterIds.forEach(id => {
-      document.getElementById(id).addEventListener('change', applyFilters);
+      const element = document.getElementById(id);
+      if (!element) return;
+
+      element.addEventListener('change', applyFilters);
+
+      if (element.tagName === 'INPUT') {
+        element.addEventListener('input', debounce(applyFilters, 250));
+      }
     });
 
-    document.getElementById('searchText').addEventListener('input', applyFilters);
+    document.getElementById('searchText').addEventListener('input', debounce(applyFilters, 250));
+
+    ['mapDisplayMode', 'heatMetric', 'heatRadius'].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.addEventListener('change', () => updateMap(filteredData));
+      }
+    });
 
     if (isDashboardAccessGranted()) {
       loadData();
@@ -704,7 +1407,8 @@
       buildFilters(rawData);
       applyFilters();
 
-      setStatus('success', `${rawData.length} bien(s) chargé(s) depuis Google Sheets.`);
+      const totalPhotos = rawData.reduce((sum, item) => sum + getPhotos(item).length, 0);
+      setStatus('success', `${rawData.length} bien(s) chargé(s) depuis Google Sheets — ${totalPhotos} photo(s) associée(s).`);
     };
 
     const script = document.createElement('script');
@@ -747,11 +1451,14 @@
     osmLayer.addTo(map);
 
     L.control.layers(baseLayers, null, {
-      collapsed: false,
+      collapsed: true,
       position: 'topright'
     }).addTo(map);
 
     markersLayer = L.layerGroup().addTo(map);
+
+    // Heatmap interne sans plugin externe : plus stable sur GitHub Pages et smartphones.
+    heatLayer = L.layerGroup().addTo(map);
   }
 
   function buildFilters(data) {
@@ -783,6 +1490,14 @@
     const source = document.getElementById('filterSource').value;
     const periode = document.getElementById('filterPeriode').value;
     const annee = document.getElementById('filterAnnee').value;
+    const photosFilter = document.getElementById('filterPhotos').value;
+    const prixM2Min = toNumber(document.getElementById('filterPrixM2Min')?.value);
+    const prixM2Max = toNumber(document.getElementById('filterPrixM2Max')?.value);
+    const prixMin = toNumber(document.getElementById('filterPrixMin')?.value);
+    const prixMax = toNumber(document.getElementById('filterPrixMax')?.value);
+    const superficieMin = toNumber(document.getElementById('filterSuperficieMin')?.value);
+    const superficieMax = toNumber(document.getElementById('filterSuperficieMax')?.value);
+    const negociationMin = toNumber(document.getElementById('filterNegociationMin')?.value);
     const search = document.getElementById('searchText').value.trim().toLowerCase();
 
     filteredData = rawData.filter(item => {
@@ -792,7 +1507,12 @@
         (!statut || item.statut_offre === statut) &&
         (!source || item.source_information === source) &&
         (!periode || item.periode_trimestre === periode) &&
-        (!annee || getYear(item.date_saisie) === annee);
+        (!annee || getYear(item.date_saisie) === annee) &&
+        (!photosFilter || (photosFilter === 'avec' ? getPhotos(item).length > 0 : getPhotos(item).length === 0)) &&
+        passesRangeFilter(toNumber(item.prix_m2_tnd), prixM2Min, prixM2Max) &&
+        passesRangeFilter(toNumber(item.prix_demande_tnd), prixMin, prixMax) &&
+        passesRangeFilter(toNumber(item.superficie_m2), superficieMin, superficieMax) &&
+        (!negociationMin || getNegotiationRate(item) >= negociationMin);
 
       const searchable = [
         item.id,
@@ -812,8 +1532,87 @@
     updateKpis(filteredData);
     updateMap(filteredData);
     updateCharts(filteredData);
+    updateTerritorialIndicators(filteredData);
     updateTable(filteredData);
   }
+
+
+  function passesRangeFilter(value, minValue, maxValue) {
+    const n = toNumber(value);
+
+    if (minValue && (!n || n < minValue)) return false;
+    if (maxValue && (!n || n > maxValue)) return false;
+
+    return true;
+  }
+
+  function getNegotiationGap(item) {
+    const demande = toNumber(item.prix_demande_tnd);
+    const vente = toNumber(item.prix_vente_tnd);
+
+    if (!demande || !vente || vente > demande) return 0;
+
+    return demande - vente;
+  }
+
+  function getNegotiationRate(item) {
+    const demande = toNumber(item.prix_demande_tnd);
+    const gap = getNegotiationGap(item);
+
+    if (!demande || !gap) return 0;
+
+    return (gap / demande) * 100;
+  }
+
+  function getPriceClass(item) {
+    const value = toNumber(item.prix_m2_tnd);
+
+    if (!value) {
+      return { key: 'unknown', label: 'Non renseigné', color: '#64748b' };
+    }
+
+    if (value < 1000) {
+      return { key: 'low', label: '< 1 000 TND/m²', color: '#16a34a' };
+    }
+
+    if (value < 2000) {
+      return { key: 'medium', label: '1 000–2 000 TND/m²', color: '#eab308' };
+    }
+
+    if (value < 3000) {
+      return { key: 'high', label: '2 000–3 000 TND/m²', color: '#f97316' };
+    }
+
+    return { key: 'very-high', label: '> 3 000 TND/m²', color: '#dc2626' };
+  }
+
+  function debounce(fn, delay = 250) {
+    let timer;
+
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  }
+
+  function resetAdvancedFilters() {
+    [
+      'filterPrixM2Min',
+      'filterPrixM2Max',
+      'filterPrixMin',
+      'filterPrixMax',
+      'filterSuperficieMin',
+      'filterSuperficieMax',
+      'filterNegociationMin',
+      'searchText'
+    ].forEach(id => {
+      const element = document.getElementById(id);
+      if (element) element.value = '';
+    });
+
+    applyFilters();
+  }
+
 
   function updateKpis(data) {
     const total = data.length;
@@ -822,6 +1621,7 @@
     const prixM2 = average(data.map(d => toNumber(d.prix_m2_tnd)).filter(v => v > 0));
     const superficie = average(data.map(d => toNumber(d.superficie_m2)).filter(v => v > 0));
     const vendus = data.filter(d => d.statut_offre === 'Vendu').length;
+    const totalPhotos = data.reduce((sum, item) => sum + getPhotos(item).length, 0);
 
     document.getElementById('kpiTotal').textContent = total.toLocaleString('fr-FR');
     document.getElementById('kpiPrixDemande').textContent = formatMoney(prixDemande);
@@ -829,18 +1629,58 @@
     document.getElementById('kpiPrixM2').textContent = prixM2 ? Math.round(prixM2).toLocaleString('fr-FR') + ' TND/m²' : '—';
     document.getElementById('kpiSuperficie').textContent = superficie ? Math.round(superficie).toLocaleString('fr-FR') + ' m²' : '—';
     document.getElementById('kpiVendus').textContent = vendus.toLocaleString('fr-FR');
+    document.getElementById('kpiPhotos').textContent = totalPhotos.toLocaleString('fr-FR');
   }
 
   function updateMap(data) {
     markersLayer.clearLayers();
 
+    if (heatLayer) {
+      heatLayer.clearLayers();
+      if (map.hasLayer(heatLayer)) {
+        map.removeLayer(heatLayer);
+      }
+    }
+
+    if (map.hasLayer(markersLayer)) {
+      map.removeLayer(markersLayer);
+    }
+
     const bounds = [];
+    const validPoints = [];
 
     data.forEach(item => {
       const lat = toNumber(item.latitude);
       const lng = toNumber(item.longitude);
 
       if (!lat || !lng) return;
+
+      validPoints.push({ item, lat, lng });
+      bounds.push([lat, lng]);
+    });
+
+    const mode = document.getElementById('mapDisplayMode')?.value || 'points_heatmap';
+    const metric = document.getElementById('heatMetric')?.value || 'count';
+    const radius = Number(document.getElementById('heatRadius')?.value || 26);
+
+    const maxMetricValue = getMaxMetricValue(validPoints.map(p => p.item), metric);
+
+    validPoints.forEach(point => {
+      const item = point.item;
+      const lat = point.lat;
+      const lng = point.lng;
+      const intensity = getHeatIntensity(item, metric, maxMetricValue);
+      const heatStyle = getHeatStyle(intensity);
+
+      L.circleMarker([lat, lng], {
+        radius: Math.max(12, radius * (0.55 + intensity * 0.65)),
+        color: heatStyle.color,
+        weight: 0,
+        fillColor: heatStyle.color,
+        fillOpacity: heatStyle.opacity,
+        className: 'heat-circle',
+        interactive: false
+      }).addTo(heatLayer);
 
       const popup = `
         <strong>${escapeHtml(item.type_bien || 'Bien')}</strong><br>
@@ -851,17 +1691,108 @@
         <b>Prix vente :</b> ${formatMoney(item.prix_vente_tnd)}<br>
         <b>Prix/m² :</b> ${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²<br>
         <b>Statut :</b> ${escapeHtml(item.statut_offre || '')}<br>
+        <b>Date :</b> ${escapeHtml(item.date_saisie || '')}<br>
         <b>Latitude :</b> ${lat.toFixed(6)}<br>
         <b>Longitude :</b> ${lng.toFixed(6)}
+        ${renderPopupPhotos(item)}
       `;
 
-      L.marker([lat, lng]).bindPopup(popup).addTo(markersLayer);
-      bounds.push([lat, lng]);
+      const priceClass = getPriceClass(item);
+      const marker = L.circleMarker([lat, lng], {
+        radius: 7,
+        color: '#ffffff',
+        weight: 2,
+        fillColor: priceClass.color,
+        fillOpacity: 0.94,
+        title: item.id || '',
+        riseOnHover: true
+      }).bindPopup(popup);
+
+      marker.on('click', () => openDetailPanel(item));
+      marker.addTo(markersLayer);
     });
 
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [30, 30], maxZoom: 14 });
+    if (mode === 'heatmap' || mode === 'points_heatmap') {
+      heatLayer.addTo(map);
     }
+
+    if (mode === 'points' || mode === 'points_heatmap') {
+      markersLayer.addTo(map);
+    }
+
+    updateMapStats(validPoints.length, data.length, metric);
+    updateHeatLegend(mode);
+
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [34, 34], maxZoom: 14 });
+    }
+  }
+
+  function getMaxMetricValue(data, metric) {
+    if (metric === 'count') return 1;
+
+    const values = data
+      .map(item => toNumber(item[metric]))
+      .filter(value => value > 0);
+
+    return values.length ? Math.max(...values) : 1;
+  }
+
+  function getHeatIntensity(item, metric, maxValue) {
+    if (metric === 'count') {
+      return 0.72;
+    }
+
+    const value = toNumber(item[metric]);
+
+    if (!value || !maxValue) {
+      return 0.18;
+    }
+
+    return Math.max(0.18, Math.min(1, value / maxValue));
+  }
+
+  function getHeatStyle(intensity) {
+    if (intensity >= 0.78) {
+      return { color: '#ef4444', opacity: 0.58 };
+    }
+
+    if (intensity >= 0.52) {
+      return { color: '#f59e0b', opacity: 0.50 };
+    }
+
+    if (intensity >= 0.30) {
+      return { color: '#22c55e', opacity: 0.42 };
+    }
+
+    return { color: '#0ea5e9', opacity: 0.34 };
+  }
+
+  function updateHeatLegend(mode) {
+    const legend = document.getElementById('heatLegend');
+
+    if (!legend) return;
+
+    legend.style.display = mode === 'points' ? 'none' : 'flex';
+  }
+
+  function updateMapStats(validPointCount, totalFilteredCount, metric) {
+    const box = document.getElementById('mapStats');
+
+    if (!box) return;
+
+    const metricLabels = {
+      count: 'Densité des biens',
+      prix_m2_tnd: 'Prix moyen au m²',
+      prix_demande_tnd: 'Prix demandé',
+      prix_vente_tnd: 'Prix de vente'
+    };
+
+    box.innerHTML = `
+      <span class="map-stat">Points GPS affichés : ${validPointCount.toLocaleString('fr-FR')}</span>
+      <span class="map-stat">Biens filtrés : ${totalFilteredCount.toLocaleString('fr-FR')}</span>
+      <span class="map-stat">Heatmap : ${escapeHtml(metricLabels[metric] || metric)}</span>
+    `;
   }
 
   function updateCharts(data) {
@@ -869,6 +1800,10 @@
     renderCountChart('chartStatut', countBy(data, 'statut_offre'), 'doughnut');
     renderCountChart('chartGouvernorat', countBy(data, 'gouvernorat'), 'bar');
     renderAverageChart('chartPrixM2Type', averageBy(data, 'type_bien', 'prix_m2_tnd'), 'bar');
+    renderAverageChart('chartPrixM2Gouvernorat', averageBy(data, 'gouvernorat', 'prix_m2_tnd'), 'bar');
+    renderTimeAverageChart('chartPrixM2Temps', averageByTime(data, 'prix_m2_tnd'), 'line', 'Prix moyen au m²');
+    renderTimeAverageChart('chartPrixDemandeTemps', averageByTime(data, 'prix_demande_tnd'), 'line', 'Prix demandé moyen');
+    renderTimeAverageChart('chartPrixVenteTemps', averageByTime(data, 'prix_vente_tnd'), 'line', 'Prix de vente moyen');
   }
 
   function renderCountChart(canvasId, dataset, type) {
@@ -915,13 +1850,42 @@
       data: {
         labels,
         datasets: [{
-          label: 'Prix moyen au m²',
+          label: 'Prix moyen',
           data: values
         }]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  }
+
+  function renderTimeAverageChart(canvasId, dataset, type, label) {
+    const labels = Object.keys(dataset).sort(comparePeriodKeys);
+    const values = labels.map(key => Math.round(dataset[key]));
+
+    destroyChart(canvasId);
+
+    charts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type,
+      data: {
+        labels,
+        datasets: [{
+          label: label,
+          data: values,
+          tension: 0.25
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true }
+        },
         scales: {
           y: { beginAtZero: true }
         }
@@ -940,12 +1904,12 @@
     const body = document.getElementById('tableBody');
 
     if (data.length === 0) {
-      body.innerHTML = '<tr><td colspan="16">Aucun bien ne correspond aux filtres.</td></tr>';
+      body.innerHTML = '<tr><td colspan="17">Aucun bien ne correspond aux filtres.</td></tr>';
       return;
     }
 
     body.innerHTML = data.map(item => `
-      <tr>
+      <tr class="row-clickable" onclick="openDetailPanelById('${escapeJs(item.id)}')">
         <td>${escapeHtml(item.id)}</td>
         <td>${escapeHtml(item.date_saisie)}</td>
         <td>${escapeHtml(item.lieu)}</td>
@@ -960,11 +1924,170 @@
         <td>${formatNumber(Math.round(toNumber(item.prix_m2_tnd)))} TND/m²</td>
         <td>${toNumber(item.latitude) ? toNumber(item.latitude).toFixed(6) : '—'}</td>
         <td>${toNumber(item.longitude) ? toNumber(item.longitude).toFixed(6) : '—'}</td>
+        <td>${renderTablePhotos(item)}</td>
         <td>${escapeHtml(item.statut_offre)}</td>
         <td>${escapeHtml(item.source_information)}</td>
       </tr>
     `).join('');
   }
+
+
+  function updateTerritorialIndicators(data) {
+    const body = document.getElementById('territoryBody');
+
+    if (!body) return;
+
+    const groups = {};
+
+    data.forEach(item => {
+      const key = item.gouvernorat || 'Non renseigné';
+
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+
+      groups[key].push(item);
+    });
+
+    const rows = Object.keys(groups)
+      .sort((a, b) => a.localeCompare(b, 'fr'))
+      .map(gouvernorat => {
+        const items = groups[gouvernorat];
+        const prixM2Values = items.map(i => toNumber(i.prix_m2_tnd)).filter(v => v > 0);
+        const prixDemandeValues = items.map(i => toNumber(i.prix_demande_tnd)).filter(v => v > 0);
+        const prixVenteValues = items.map(i => toNumber(i.prix_vente_tnd)).filter(v => v > 0);
+        const superficies = items.map(i => toNumber(i.superficie_m2)).filter(v => v > 0);
+        const negotiationRates = items.map(getNegotiationRate).filter(v => v > 0);
+
+        const withGps = items.filter(i => toNumber(i.latitude) && toNumber(i.longitude)).length;
+        const withPhotos = items.filter(i => getPhotos(i).length > 0).length;
+        const vendus = items.filter(i => i.statut_offre === 'Vendu').length;
+
+        return `
+          <tr>
+            <td><strong>${escapeHtml(gouvernorat)}</strong></td>
+            <td>${items.length.toLocaleString('fr-FR')}</td>
+            <td>${withGps.toLocaleString('fr-FR')}</td>
+            <td>${withPhotos.toLocaleString('fr-FR')}</td>
+            <td>${formatMoneyPerM2(average(prixM2Values))}</td>
+            <td>${formatMoneyPerM2(median(prixM2Values))}</td>
+            <td>${formatMoneyPerM2(minValue(prixM2Values))}</td>
+            <td>${formatMoneyPerM2(maxValue(prixM2Values))}</td>
+            <td>${formatMoney(average(prixDemandeValues))}</td>
+            <td>${formatMoney(average(prixVenteValues))}</td>
+            <td>${formatNumber(Math.round(average(superficies)))} m²</td>
+            <td>${vendus.toLocaleString('fr-FR')}</td>
+            <td>${formatPercent(average(negotiationRates))}</td>
+          </tr>
+        `;
+      });
+
+    body.innerHTML = rows.length
+      ? rows.join('')
+      : '<tr><td colspan="13">Aucune donnée territoriale disponible avec les filtres actifs.</td></tr>';
+  }
+
+  function openDetailPanelById(id) {
+    const item = (filteredData || rawData).find(row => String(row.id) === String(id));
+    if (item) openDetailPanel(item);
+  }
+
+  function openDetailPanel(item) {
+    const panel = document.getElementById('detailPanel');
+    const title = document.getElementById('detailTitle');
+    const subtitle = document.getElementById('detailSubtitle');
+    const body = document.getElementById('detailBody');
+
+    if (!panel || !title || !subtitle || !body || !item) {
+      return;
+    }
+
+    const photos = getPhotos(item);
+    const priceClass = getPriceClass(item);
+
+    title.textContent = `${item.type_bien || 'Bien'} — ${item.lieu || item.gouvernorat || ''}`;
+    subtitle.textContent = `${item.id || ''} • ${item.date_saisie || ''}`;
+
+    body.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-metric">
+          <div class="name">Prix demandé</div>
+          <div class="val">${formatMoney(item.prix_demande_tnd)}</div>
+        </div>
+        <div class="detail-metric">
+          <div class="name">Prix de vente</div>
+          <div class="val">${formatMoney(item.prix_vente_tnd)}</div>
+        </div>
+        <div class="detail-metric">
+          <div class="name">Prix au m²</div>
+          <div class="val">${formatMoneyPerM2(item.prix_m2_tnd)}</div>
+        </div>
+        <div class="detail-metric">
+          <div class="name">Classe de prix</div>
+          <div class="val"><span class="legend-dot" style="background:${priceClass.color}"></span> ${escapeHtml(priceClass.label)}</div>
+        </div>
+        <div class="detail-metric">
+          <div class="name">Superficie</div>
+          <div class="val">${formatNumber(item.superficie_m2)} m²</div>
+        </div>
+        <div class="detail-metric">
+          <div class="name">Négociation</div>
+          <div class="val">${formatMoney(getNegotiationGap(item))} — ${formatPercent(getNegotiationRate(item))}</div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h3>Informations générales</h3>
+        ${detailLine('Adresse', item.adresse)}
+        ${detailLine('Gouvernorat', item.gouvernorat)}
+        ${detailLine('Type', item.type_bien)}
+        ${detailLine('Typologie', item.typologie)}
+        ${detailLine('Nature terrain', item.nature_terrain)}
+        ${detailLine('Usage', item.usage_bien)}
+        ${detailLine('État du bien', item.etat_bien)}
+        ${detailLine('Statut foncier', item.statut_foncier)}
+        ${detailLine('Statut de l’offre', item.statut_offre)}
+        ${detailLine('Source', item.source_information)}
+        ${detailLine('Période', item.periode_trimestre)}
+      </div>
+
+      <div class="detail-section">
+        <h3>Localisation</h3>
+        ${detailLine('Coordonnées', item.coordonnees_gps)}
+        ${detailLine('Latitude', toNumber(item.latitude) ? toNumber(item.latitude).toFixed(6) : '—')}
+        ${detailLine('Longitude', toNumber(item.longitude) ? toNumber(item.longitude).toFixed(6) : '—')}
+      </div>
+
+      <div class="detail-section">
+        <h3>Photos (${photos.length})</h3>
+        <div class="detail-photos">
+          ${photos.length ? photos.map((photo, index) => `
+            <a class="detail-photo-link" href="${escapeHtml(getPhotoUrl(photo))}" target="_blank" rel="noopener noreferrer">
+              <span>📷 Photo ${index + 1}</span>
+              <span>Ouvrir ↗</span>
+            </a>
+          `).join('') : '<p class="map-note">Aucune photo associée à ce bien.</p>'}
+        </div>
+      </div>
+    `;
+
+    panel.classList.add('active');
+  }
+
+  function closeDetailPanel() {
+    const panel = document.getElementById('detailPanel');
+    if (panel) panel.classList.remove('active');
+  }
+
+  function detailLine(label, value) {
+    return `
+      <div class="detail-line">
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(value || '—')}</span>
+      </div>
+    `;
+  }
+
 
   function countBy(data, field) {
     return data.reduce((acc, item) => {
@@ -995,6 +2118,97 @@
 
     return result;
   }
+
+  function averageByTime(data, valueField) {
+    const groups = {};
+
+    data.forEach(item => {
+      const key = getPeriodKey(item);
+
+      if (!key) return;
+
+      const value = toNumber(item[valueField]);
+
+      if (value <= 0) return;
+
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(value);
+    });
+
+    const result = {};
+
+    Object.keys(groups).forEach(key => {
+      result[key] = average(groups[key]);
+    });
+
+    return result;
+  }
+
+  function getPeriodKey(item) {
+    const year = getYear(item.date_saisie);
+    const trimestre = item.periode_trimestre || '';
+
+    if (!year && !trimestre) return '';
+
+    return trimestre ? `${year}-${trimestre}` : year;
+  }
+
+  function comparePeriodKeys(a, b) {
+    const parse = value => {
+      const text = String(value || '');
+      const yearMatch = text.match(/(\d{4})/);
+      const quarterMatch = text.match(/T([1-4])/i);
+
+      return {
+        year: yearMatch ? Number(yearMatch[1]) : 0,
+        quarter: quarterMatch ? Number(quarterMatch[1]) : 0
+      };
+    };
+
+    const pa = parse(a);
+    const pb = parse(b);
+
+    if (pa.year !== pb.year) return pa.year - pb.year;
+    return pa.quarter - pb.quarter;
+  }
+
+
+  function median(values) {
+    const clean = values.filter(v => Number.isFinite(Number(v))).map(Number).sort((a, b) => a - b);
+
+    if (!clean.length) return 0;
+
+    const mid = Math.floor(clean.length / 2);
+
+    return clean.length % 2
+      ? clean[mid]
+      : (clean[mid - 1] + clean[mid]) / 2;
+  }
+
+  function minValue(values) {
+    const clean = values.filter(v => Number.isFinite(Number(v))).map(Number);
+    return clean.length ? Math.min(...clean) : 0;
+  }
+
+  function maxValue(values) {
+    const clean = values.filter(v => Number.isFinite(Number(v))).map(Number);
+    return clean.length ? Math.max(...clean) : 0;
+  }
+
+  function formatMoneyPerM2(value) {
+    const n = toNumber(value);
+    if (!n) return '—';
+    return Math.round(n).toLocaleString('fr-FR') + ' TND/m²';
+  }
+
+  function formatPercent(value) {
+    const n = toNumber(value);
+    if (!n) return '—';
+    return n.toLocaleString('fr-FR', {
+      maximumFractionDigits: 1
+    }) + ' %';
+  }
+
 
   function average(values) {
     if (!values.length) return 0;
@@ -1036,9 +2250,91 @@
   }
 
 
+
+  /************************************************************
+   * PHOTOS ASSOCIÉES AUX BIENS
+   ************************************************************/
+  function getPhotos(item) {
+    if (!item || !Array.isArray(item.photos)) {
+      return [];
+    }
+
+    return item.photos.filter(photo => photo && (photo.lien_drive || photo.id_fichier_drive));
+  }
+
+  function getPhotoUrl(photo) {
+    if (!photo) {
+      return '';
+    }
+
+    return photo.lien_drive || (photo.id_fichier_drive
+      ? `https://drive.google.com/file/d/${photo.id_fichier_drive}/view`
+      : '');
+  }
+
+  function renderPopupPhotos(item) {
+    const photos = getPhotos(item);
+
+    if (photos.length === 0) {
+      return '';
+    }
+
+    const links = photos.slice(0, 4).map((photo, index) => {
+      const url = getPhotoUrl(photo);
+      const label = photo.filename || `Photo ${index + 1}`;
+
+      return `
+        <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(label)}">
+          📷 Photo ${index + 1}
+        </a>
+      `;
+    }).join('');
+
+    return `
+      <div class="popup-photos">
+        <div class="popup-photos-title">Photos du bien (${photos.length})</div>
+        <div class="popup-photo-grid">${links}</div>
+      </div>
+    `;
+  }
+
+  function renderTablePhotos(item) {
+    const photos = getPhotos(item);
+
+    if (photos.length === 0) {
+      return '—';
+    }
+
+    const firstUrl = getPhotoUrl(photos[0]);
+
+    return `
+      <a href="${escapeHtml(firstUrl)}" target="_blank" rel="noopener noreferrer" class="photo-count-badge">
+        📷 ${photos.length}
+      </a>
+    `;
+  }
+
+
   /************************************************************
    * EXPORT DES DONNÉES FILTRÉES : JSON ET GEOJSON
    ************************************************************/
+
+  function enrichExportRecord(item) {
+    const photos = getPhotos(item);
+
+    const priceClass = getPriceClass(item);
+
+    return {
+      ...item,
+      nombre_photos: photos.length,
+      liens_photos: photos.map(photo => getPhotoUrl(photo)).join(" | "),
+      classe_prix_m2: priceClass.label,
+      ecart_negociation_tnd: getNegotiationGap(item),
+      taux_negociation_pct: getNegotiationRate(item)
+    };
+  }
+
+
   function exportFilteredJson() {
     const dataToExport = Array.isArray(filteredData) ? filteredData : [];
 
@@ -1053,7 +2349,8 @@
       generated_at: new Date().toISOString(),
       count: dataToExport.length,
       filters: getActiveFilters(),
-      data: dataToExport
+      points_valides: dataToExport.filter(item => toNumber(item.latitude) && toNumber(item.longitude)).length,
+      data: dataToExport.map(enrichExportRecord)
     };
 
     downloadTextFile(
@@ -1062,6 +2359,113 @@
       "application/json;charset=utf-8"
     );
   }
+
+
+  function exportFilteredCsv() {
+    const dataToExport = Array.isArray(filteredData) ? filteredData : [];
+
+    if (dataToExport.length === 0) {
+      alert("Aucune donnée à exporter avec les filtres actuels.");
+      return;
+    }
+
+    const fields = [
+      "id",
+      "date_saisie",
+      "periode_trimestre",
+      "source_information",
+      "lieu",
+      "adresse",
+      "gouvernorat",
+      "coordonnees_gps",
+      "latitude",
+      "longitude",
+      "type_bien",
+      "typologie",
+      "etat_bien",
+      "nature_terrain",
+      "usage_bien",
+      "superficie_m2",
+      "nombre_pieces",
+      "prix_demande_tnd",
+      "prix_vente_tnd",
+      "prix_m2_tnd",
+      "statut_foncier",
+      "statut_offre",
+      "createur_application",
+      "objectid_application",
+      "nombre_photos",
+      "liens_photos",
+      "classe_prix_m2",
+      "ecart_negociation_tnd",
+      "taux_negociation_pct"
+    ];
+
+    const labels = [
+      "ID",
+      "Date de saisie",
+      "Période",
+      "Source",
+      "Lieu",
+      "Adresse",
+      "Gouvernorat",
+      "Coordonnées GPS",
+      "Latitude",
+      "Longitude",
+      "Type de bien",
+      "Typologie",
+      "État du bien",
+      "Nature terrain",
+      "Usage",
+      "Superficie m²",
+      "Nombre de pièces",
+      "Prix demandé TND",
+      "Prix de vente TND",
+      "Prix au m² TND",
+      "Statut foncier",
+      "Statut de l'offre",
+      "Créateur application",
+      "ObjectID application",
+      "Nombre de photos",
+      "Liens photos",
+      "Classe prix m²",
+      "Écart négociation TND",
+      "Taux négociation %"
+    ];
+
+    const rows = dataToExport.map(item => {
+      const photos = getPhotos(item);
+      const enriched = {
+        ...item,
+        nombre_photos: photos.length,
+        liens_photos: photos.map(photo => getPhotoUrl(photo)).join(" | ")
+      };
+
+      return fields.map(field => csvEscape(enriched[field]));
+    });
+
+    const csv = [
+      labels.map(csvEscape).join(";"),
+      ...rows.map(row => row.join(";"))
+    ].join("\n");
+
+    downloadTextFile(
+      "\ufeff" + csv,
+      buildExportFileName("observatoire_immobilier", "csv"),
+      "text/csv;charset=utf-8"
+    );
+  }
+
+  function csvEscape(value) {
+    const text = String(value ?? "");
+
+    if (/[;"\n\r]/.test(text)) {
+      return '"' + text.replaceAll('"', '""') + '"';
+    }
+
+    return text;
+  }
+
 
   function exportFilteredGeoJson() {
     const dataToExport = Array.isArray(filteredData) ? filteredData : [];
@@ -1080,7 +2484,7 @@
           return null;
         }
 
-        const properties = { ...item };
+        const properties = enrichExportRecord(item);
         delete properties.latitude;
         delete properties.longitude;
 
@@ -1130,6 +2534,14 @@
       source_information: document.getElementById("filterSource")?.value || "",
       periode_trimestre: document.getElementById("filterPeriode")?.value || "",
       annee: document.getElementById("filterAnnee")?.value || "",
+      photos: document.getElementById("filterPhotos")?.value || "",
+      prix_m2_min: document.getElementById("filterPrixM2Min")?.value || "",
+      prix_m2_max: document.getElementById("filterPrixM2Max")?.value || "",
+      prix_demande_min: document.getElementById("filterPrixMin")?.value || "",
+      prix_demande_max: document.getElementById("filterPrixMax")?.value || "",
+      superficie_min: document.getElementById("filterSuperficieMin")?.value || "",
+      superficie_max: document.getElementById("filterSuperficieMax")?.value || "",
+      negociation_min: document.getElementById("filterNegociationMin")?.value || "",
       recherche: document.getElementById("searchText")?.value || ""
     };
   }
@@ -1177,6 +2589,15 @@
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }, 100);
+  }
+
+  function escapeJs(value) {
+    return String(value ?? '')
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, "\\'")
+      .replace(/"/g, '\\"')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
   }
 
   function escapeHtml(value) {
