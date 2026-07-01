@@ -972,6 +972,7 @@ header h1 {
     const MAX_PHOTOS = 3;
     const PHOTO_MAX_DIMENSION = 1600;
     const PHOTO_JPEG_QUALITY = 0.72;
+    let selectedPhotos = [];
 
     /************************************************************
      * 2. PWA : SERVICE WORKER ET INSTALLATION
@@ -1306,7 +1307,7 @@ header h1 {
         }
       }
 
-      refreshPhotoCoordinatesDisplay();
+      safeRefreshPhotoCoordinatesDisplay();
     }
 
     function resetGpsConfirmation() {
@@ -1321,7 +1322,17 @@ header h1 {
         gpsMethod.textContent = '⚠️ Position non confirmée : capturez la position GPS ou cliquez sur la carte avant d’enregistrer.';
       }
 
-      refreshPhotoCoordinatesDisplay();
+      safeRefreshPhotoCoordinatesDisplay();
+    }
+
+    function safeRefreshPhotoCoordinatesDisplay() {
+      try {
+        if (typeof refreshPhotoCoordinatesDisplay === 'function') {
+          refreshPhotoCoordinatesDisplay();
+        }
+      } catch (error) {
+        console.warn('Actualisation temporaire des coordonnées photos ignorée :', error);
+      }
     }
 
     function getCurrentGpsCoordinates() {
@@ -1387,6 +1398,7 @@ header h1 {
           marker.setLatLng([lat, lng]);
           map.setView([lat, lng], 17);
           updateGpsField(lat, lng, 'gps');
+          showMessage('success', '✅ Position GPS capturée avec succès.');
 
           locateBtn.disabled = false;
           locateBtn.textContent = '📍 Capturer ma position';
@@ -1424,7 +1436,7 @@ header h1 {
     const photoCounter = document.getElementById('photoCounter');
     const clearPhotosBtn = document.getElementById('clearPhotosBtn');
 
-    let selectedPhotos = [];
+    // selectedPhotos est déclarée globalement pour éviter un blocage du GPS au chargement.
 
     if (photosInput) {
       photosInput.addEventListener('change', async function (event) {
