@@ -973,8 +973,8 @@ header h1 {
     const APP_OBJECT_ID = 'OMI-BJ-2026-001';
     const OFFLINE_QUEUE_KEY = 'observatoire_immo_offline_queue_v1';
     const MAX_PHOTOS = 3;
-    const PHOTO_MAX_DIMENSION = 1600;
-    const PHOTO_JPEG_QUALITY = 0.72;
+    const PHOTO_MAX_DIMENSION = 900;
+    const PHOTO_JPEG_QUALITY = 0.55;
     let selectedPhotos = [];
 
     /************************************************************
@@ -1631,6 +1631,10 @@ header h1 {
       renderPhotoPreviews();
     }
 
+    function getSelectedPhotosTotalSize() {
+      return selectedPhotos.reduce((sum, photo) => sum + (Number(photo.compressedSize) || 0), 0);
+    }
+
     function renderPhotoPreviews() {
       if (!photoPreviewList || !photoCounter || !clearPhotosBtn) {
         return;
@@ -1644,7 +1648,7 @@ header h1 {
         return;
       }
 
-      photoCounter.textContent = `📷 ${selectedPhotos.length} photo(s) sélectionnée(s). Elles seront enregistrées dans Google Drive avec les coordonnées du bien.`;
+      photoCounter.textContent = `📷 ${selectedPhotos.length} photo(s) sélectionnée(s). Elles seront compressées puis enregistrées dans Google Drive avec les coordonnées du bien.`;
       clearPhotosBtn.classList.remove('hidden-field');
 
       selectedPhotos.forEach((photo, index) => {
@@ -1746,11 +1750,20 @@ header h1 {
         latitude: latitude,
         longitude: longitude,
         methode_localisation: locationMethod,
+        nombre_photos_app: selectedPhotos.length,
+        taille_totale_photos_app: getSelectedPhotosTotalSize(),
         photos: selectedPhotos
       };
 
       submitBtn.disabled = true;
-      submitBtn.textContent = '⏳ Enregistrement en cours...';
+      const photosSizeKo = Math.round(getSelectedPhotosTotalSize() / 1024);
+      submitBtn.textContent = selectedPhotos.length > 0
+        ? `⏳ Envoi du bien + ${selectedPhotos.length} photo(s)...`
+        : '⏳ Enregistrement en cours...';
+
+      if (selectedPhotos.length > 0) {
+        showMessage('warning', `⏳ Envoi de ${selectedPhotos.length} photo(s), environ ${photosSizeKo.toLocaleString('fr-FR')} Ko après compression. Ne fermez pas l’application.`);
+      }
 
       try {
         if (!navigator.onLine) {
