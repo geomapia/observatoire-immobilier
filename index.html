@@ -1385,7 +1385,14 @@ header h1 {
       updateGpsField(lat, lng, methodLabel);
 
       const accuracyText = accuracy > 0 ? ` Précision estimée : ±${accuracy} m.` : '';
-      showMessage('success', `✅ Position GPS capturée avec succès.${accuracyText}`);
+
+      const gpsMethod = document.getElementById('gpsMethod');
+      if (gpsMethod) {
+        gpsMethod.classList.add('confirmed');
+        gpsMethod.textContent = `✅ Position GPS capturée avec succès.${accuracyText}`;
+      }
+
+      locateBtn.dataset.gpsSuccess = 'yes';
     }
 
     function showGpsError(error) {
@@ -1453,7 +1460,19 @@ header h1 {
         }
       } finally {
         locateBtn.disabled = false;
-        locateBtn.textContent = '📍 Capturer ma position';
+
+        if (locateBtn.dataset.gpsSuccess === 'yes') {
+          locateBtn.textContent = '✅ Position capturée';
+          locateBtn.dataset.gpsSuccess = '';
+
+          setTimeout(() => {
+            if (!locateBtn.disabled) {
+              locateBtn.textContent = '📍 Capturer ma position';
+            }
+          }, 2200);
+        } else {
+          locateBtn.textContent = '📍 Capturer ma position';
+        }
       }
     }
 
