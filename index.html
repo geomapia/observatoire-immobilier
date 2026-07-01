@@ -412,6 +412,96 @@ header h1 {
       margin: 6px 0 0;
     }
 
+
+    #gpsMethod {
+      font-weight: 750;
+      color: var(--warning);
+    }
+
+    #gpsMethod.confirmed {
+      color: var(--success);
+    }
+
+    .photo-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .btn-photo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--primary);
+      color: white;
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .btn-clear-photos {
+      background: #e5e7eb;
+      color: #111827;
+      margin-top: 10px;
+    }
+
+    .photo-preview-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .photo-preview-card {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 8px;
+      background: #f9fafb;
+    }
+
+    .photo-preview-card img {
+      width: 92px;
+      height: 76px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #e5e7eb;
+    }
+
+    .photo-preview-info {
+      min-width: 0;
+      font-size: 0.8rem;
+      color: #374151;
+      line-height: 1.35;
+    }
+
+    .photo-preview-info strong {
+      display: block;
+      color: var(--primary-dark);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-bottom: 3px;
+    }
+
+    .photo-counter {
+      margin-top: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #ecfdf5;
+      color: var(--primary-dark);
+      border: 1px solid #99f6e4;
+      font-size: 0.84rem;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+
+    .photo-input-hidden {
+      display: none;
+    }
+
     footer {
       text-align: center;
       font-size: 0.78rem;
@@ -599,7 +689,45 @@ header h1 {
         <p class="help-text">
           Vous pouvez déplacer le marqueur manuellement pour corriger la position exacte du bien.
         </p>
+        <p class="help-text" id="gpsMethod">
+          ⚠️ Position non confirmée : capturez la position GPS ou cliquez sur la carte avant d’enregistrer.
+        </p>
       </div>
+    </section>
+
+
+    <section class="card">
+      <h2 class="section-title">📷 Photos géolocalisées du bien</h2>
+
+      <div class="photo-actions">
+        <label for="photosInput" class="btn btn-photo">
+          📷 Prendre / ajouter des photos
+        </label>
+
+        <input
+          type="file"
+          id="photosInput"
+          class="photo-input-hidden"
+          accept="image/*"
+          capture="environment"
+          multiple
+        />
+      </div>
+
+      <p class="help-text">
+        Les photos sont optionnelles. Chaque photo sera associée aux coordonnées GPS confirmées du bien.
+        Pour plus de fiabilité, capturez ou corrigez d’abord la position sur la carte.
+      </p>
+
+      <div id="photoCounter" class="photo-counter">
+        Aucune photo sélectionnée. Maximum : 3 photos par bien.
+      </div>
+
+      <div id="photoPreviewList" class="photo-preview-list"></div>
+
+      <button type="button" class="btn btn-clear-photos hidden-field" id="clearPhotosBtn">
+        🗑️ Supprimer les photos sélectionnées
+      </button>
     </section>
 
     <section class="card">
@@ -841,6 +969,9 @@ header h1 {
     const APP_CREATOR = 'Brahim Jaziri_Geomap.ia';
     const APP_OBJECT_ID = 'OMI-BJ-2026-001';
     const OFFLINE_QUEUE_KEY = 'observatoire_immo_offline_queue_v1';
+    const MAX_PHOTOS = 3;
+    const PHOTO_MAX_DIMENSION = 1600;
+    const PHOTO_JPEG_QUALITY = 0.72;
 
     /************************************************************
      * 2. PWA : SERVICE WORKER ET INSTALLATION
@@ -1018,8 +1149,14 @@ header h1 {
     }
 
     function saveOfflineQueue(queue) {
-      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-      updateQueueStatus();
+      try {
+        localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+        updateQueueStatus();
+      } catch (error) {
+        console.error(error);
+        showMessage('error', "La file d’attente locale est pleine. Réduisez le nombre de photos ou reconnectez Internet avant d’enregistrer.");
+        throw error;
+      }
     }
 
     function enqueueOfflineData(data) {
@@ -1146,21 +1283,80 @@ header h1 {
       draggable: true
     }).addTo(map);
 
-    function updateGpsField(lat, lng) {
+    let positionConfirmed = false;
+    let locationMethod = '';
+
+    function updateGpsField(lat, lng, method = 'map') {
       document.getElementById('gps').value = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+      positionConfirmed = true;
+      locationMethod = method;
+
+      const gpsMethod = document.getElementById('gpsMethod');
+
+      if (gpsMethod) {
+        gpsMethod.classList.add('confirmed');
+
+        if (method === 'gps') {
+          gpsMethod.textContent = '✅ Position confirmée par GPS.';
+        } else if (method === 'drag') {
+          gpsMethod.textContent = '✅ Position confirmée par déplacement manuel du marqueur.';
+        } else {
+          gpsMethod.textContent = '✅ Position confirmée par clic sur la carte.';
+        }
+      }
+
+      refreshPhotoCoordinatesDisplay();
     }
 
-    updateGpsField(defaultLat, defaultLng);
+    function resetGpsConfirmation() {
+      positionConfirmed = false;
+      locationMethod = '';
+      document.getElementById('gps').value = '';
+
+      const gpsMethod = document.getElementById('gpsMethod');
+
+      if (gpsMethod) {
+        gpsMethod.classList.remove('confirmed');
+        gpsMethod.textContent = '⚠️ Position non confirmée : capturez la position GPS ou cliquez sur la carte avant d’enregistrer.';
+      }
+
+      refreshPhotoCoordinatesDisplay();
+    }
+
+    function getCurrentGpsCoordinates() {
+      if (!positionConfirmed) {
+        showMessage('error', "Veuillez confirmer la position réelle du bien : cliquez sur « Capturer ma position » ou placez le point manuellement sur la carte.");
+        document.getElementById('map').scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+        return;
+      }
+
+      refreshPhotoCoordinatesDisplay();
+
+      const gpsValue = document.getElementById('gps').value.trim();
+      const gpsParts = gpsValue.split(',');
+
+      return {
+        gpsValue,
+        latitude: gpsParts[0] ? gpsParts[0].trim() : '',
+        longitude: gpsParts[1] ? gpsParts[1].trim() : ''
+      };
+    }
+
+    resetGpsConfirmation();
 
     marker.on('dragend', function () {
       const position = marker.getLatLng();
-      updateGpsField(position.lat, position.lng);
+      updateGpsField(position.lat, position.lng, 'drag');
       map.panTo(position);
     });
 
     map.on('click', function (e) {
       marker.setLatLng(e.latlng);
-      updateGpsField(e.latlng.lat, e.latlng.lng);
+      updateGpsField(e.latlng.lat, e.latlng.lng, 'map');
     });
 
     setTimeout(function () {
@@ -1190,7 +1386,7 @@ header h1 {
 
           marker.setLatLng([lat, lng]);
           map.setView([lat, lng], 17);
-          updateGpsField(lat, lng);
+          updateGpsField(lat, lng, 'gps');
 
           locateBtn.disabled = false;
           locateBtn.textContent = '📍 Capturer ma position';
@@ -1218,6 +1414,226 @@ header h1 {
         }
       );
     });
+
+
+    /************************************************************
+     * 4B. PHOTOS GÉOLOCALISÉES
+     ************************************************************/
+    const photosInput = document.getElementById('photosInput');
+    const photoPreviewList = document.getElementById('photoPreviewList');
+    const photoCounter = document.getElementById('photoCounter');
+    const clearPhotosBtn = document.getElementById('clearPhotosBtn');
+
+    let selectedPhotos = [];
+
+    if (photosInput) {
+      photosInput.addEventListener('change', async function (event) {
+        const files = Array.from(event.target.files || []);
+
+        if (files.length === 0) {
+          return;
+        }
+
+        if (!positionConfirmed) {
+          showMessage('error', "Avant d’ajouter une photo, confirmez la position du bien : GPS, clic sur la carte ou déplacement du marqueur.");
+          photosInput.value = '';
+          return;
+        }
+
+        const remainingSlots = MAX_PHOTOS - selectedPhotos.length;
+
+        if (remainingSlots <= 0) {
+          showMessage('warning', `Maximum atteint : ${MAX_PHOTOS} photos par bien.`);
+          photosInput.value = '';
+          return;
+        }
+
+        const filesToProcess = files.slice(0, remainingSlots);
+
+        if (files.length > remainingSlots) {
+          showMessage('warning', `Seules ${remainingSlots} photo(s) supplémentaire(s) ont été ajoutées. Maximum : ${MAX_PHOTOS}.`);
+        }
+
+        for (const file of filesToProcess) {
+          try {
+            const photo = await compressPhotoFile(file);
+            selectedPhotos.push(photo);
+          } catch (error) {
+            console.error(error);
+            showMessage('error', `Impossible de préparer la photo : ${file.name}`);
+          }
+        }
+
+        photosInput.value = '';
+        renderPhotoPreviews();
+      });
+    }
+
+    if (clearPhotosBtn) {
+      clearPhotosBtn.addEventListener('click', function () {
+        clearSelectedPhotos();
+      });
+    }
+
+    function clearSelectedPhotos(showNotice = true) {
+      selectedPhotos = [];
+
+      if (photosInput) {
+        photosInput.value = '';
+      }
+
+      renderPhotoPreviews();
+
+      if (showNotice) {
+        showMessage('success', 'Les photos sélectionnées ont été supprimées.');
+      }
+    }
+
+    async function compressPhotoFile(file) {
+      if (!file.type || !file.type.startsWith('image/')) {
+        throw new Error('Le fichier sélectionné n’est pas une image.');
+      }
+
+      const dataUrl = await readFileAsDataURL(file);
+      const image = await loadImageFromDataURL(dataUrl);
+
+      const originalWidth = image.naturalWidth || image.width;
+      const originalHeight = image.naturalHeight || image.height;
+
+      let targetWidth = originalWidth;
+      let targetHeight = originalHeight;
+
+      const maxDimension = Math.max(originalWidth, originalHeight);
+
+      if (maxDimension > PHOTO_MAX_DIMENSION) {
+        const ratio = PHOTO_MAX_DIMENSION / maxDimension;
+        targetWidth = Math.round(originalWidth * ratio);
+        targetHeight = Math.round(originalHeight * ratio);
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+
+      const context = canvas.getContext('2d');
+      context.drawImage(image, 0, 0, targetWidth, targetHeight);
+
+      const compressedDataUrl = canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY);
+      const coords = getCurrentGpsCoordinates();
+
+      return {
+        filename: sanitizePhotoFilename(file.name || `photo_${Date.now()}.jpg`).replace(/\.[^.]+$/, '.jpg'),
+        mimeType: 'image/jpeg',
+        originalSize: file.size,
+        compressedSize: estimateBase64Size(compressedDataUrl),
+        base64: compressedDataUrl,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        coordonnees_gps: coords.gpsValue,
+        methode_localisation: locationMethod,
+        date_photo: new Date().toISOString()
+      };
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadImageFromDataURL(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+
+        image.src = dataUrl;
+      });
+    }
+
+    function estimateBase64Size(dataUrl) {
+      const base64 = String(dataUrl).split(',').pop() || '';
+      return Math.round((base64.length * 3) / 4);
+    }
+
+    function sanitizePhotoFilename(name) {
+      return String(name)
+        .replace(/[^\w.\-]+/g, '_')
+        .replace(/_+/g, '_')
+        .substring(0, 90);
+    }
+
+    function refreshPhotoCoordinatesDisplay() {
+      if (!selectedPhotos || selectedPhotos.length === 0) {
+        return;
+      }
+
+      const coords = getCurrentGpsCoordinates();
+
+      selectedPhotos = selectedPhotos.map(photo => ({
+        ...photo,
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        coordonnees_gps: coords.gpsValue,
+        methode_localisation: locationMethod
+      }));
+
+      renderPhotoPreviews();
+    }
+
+    function renderPhotoPreviews() {
+      if (!photoPreviewList || !photoCounter || !clearPhotosBtn) {
+        return;
+      }
+
+      photoPreviewList.innerHTML = '';
+
+      if (selectedPhotos.length === 0) {
+        photoCounter.textContent = `Aucune photo sélectionnée. Maximum : ${MAX_PHOTOS} photos par bien.`;
+        clearPhotosBtn.classList.add('hidden-field');
+        return;
+      }
+
+      photoCounter.textContent = `📷 ${selectedPhotos.length} photo(s) sélectionnée(s). Elles seront enregistrées dans Google Drive avec les coordonnées du bien.`;
+      clearPhotosBtn.classList.remove('hidden-field');
+
+      selectedPhotos.forEach((photo, index) => {
+        const card = document.createElement('div');
+        card.className = 'photo-preview-card';
+
+        const sizeKb = Math.max(1, Math.round((photo.compressedSize || 0) / 1024));
+        const coordsText = photo.latitude && photo.longitude
+          ? `${photo.latitude}, ${photo.longitude}`
+          : 'Coordonnées non confirmées';
+
+        card.innerHTML = `
+          <img src="${photo.base64}" alt="Photo ${index + 1}">
+          <div class="photo-preview-info">
+            <strong>${index + 1}. ${escapeHtml(photo.filename)}</strong>
+            <div>${sizeKb.toLocaleString('fr-FR')} Ko après compression</div>
+            <div>📍 ${escapeHtml(coordsText)}</div>
+          </div>
+        `;
+
+        photoPreviewList.appendChild(card);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
 
     /************************************************************
      * 5. ENVOI DU FORMULAIRE VERS GOOGLE SHEETS
@@ -1273,7 +1689,9 @@ header h1 {
 
         coordonnees_gps: gpsValue,
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
+        methode_localisation: locationMethod,
+        photos: selectedPhotos
       };
 
       submitBtn.disabled = true;
@@ -1297,8 +1715,10 @@ header h1 {
         updateFieldsByTypeBien();
         updatePrixM2Preview();
 
-        const currentPosition = marker.getLatLng();
-        updateGpsField(currentPosition.lat, currentPosition.lng);
+        marker.setLatLng([defaultLat, defaultLng]);
+        map.setView([defaultLat, defaultLng], defaultZoom);
+        resetGpsConfirmation();
+        clearSelectedPhotos(false);
 
       } catch (error) {
         console.error(error);
